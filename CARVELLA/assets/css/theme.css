@@ -1,0 +1,1009 @@
+/* ========================================
+   CARVELLA THEME LAYER
+   ========================================
+   Loaded first, from includes/header.php, so the custom properties
+   below exist before anything paints.
+
+   Why this file exists
+   --------------------
+   Every design token in the Tailwind config (includes/header.php) is
+   a hardcoded hex literal. Tokens are therefore redefined here as CSS
+   custom properties, and the Tailwind config points at those
+   variables. Switching theme is a single class swap on <html> instead
+   of hundreds of `dark:` variants that would have to be added to every
+   utility class in the markup.
+
+   The visual system
+   -----------------
+   FLAT. Depth is expressed with surface tone and a single hairline
+   border, never with a drop shadow, a glow, a gradient wash or a
+   frosted-glass backdrop. Concretely:
+
+   - the surface ramp is neutral grey, not violet-tinted, so the page
+     reads as a clean canvas instead of a lavender wash;
+   - every --shadow-* / --ui-card-shadow token resolves to `none`, and
+     --app-shadow-color is `transparent`, so any box-shadow that
+     survives elsewhere in the codebase paints nothing;
+   - the chrome surfaces (navbar, admin app bar, admin rail, theme
+     control) are opaque rather than translucent.
+
+   Light is the default. Dark is the same ramp inverted: the canvas is
+   the darkest field and each container level steps lighter, so a panel
+   still separates from the page by tone alone.
+
+   Naming follows the existing repo convention: flat, dash-separated,
+   no namespace prefix.
+   ======================================== */
+
+/* ---------------------------------------------------------------
+   1. LIGHT (default) — flat neutral canvas, violet accent
+   ---------------------------------------------------------------
+   The surfaces are a neutral grey ramp rather than a violet-tinted
+   one, so the page reads as a clean grey canvas with white panels
+   on it instead of a lavender wash. Violet is reserved for accent
+   and interactive state.
+
+   Hierarchy comes from TONE plus a hairline --outline-variant, not
+   from drop shadows: every --shadow-* and --ui-card-shadow token
+   below resolves to `none`, and the colour tokens are set so the
+   container ramp still steps clearly from the canvas.
+   --------------------------------------------------------------- */
+:root {
+    color-scheme: light;
+
+    /* --- neutral surface ramp (canvas -> panel) --- */
+    --background: #f4f4f5;
+    --surface: #ffffff;
+    --surface-bright: #fafafa;
+    --surface-dim: #e4e4e7;
+    --surface-variant: #e4e4e7;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #fafafa;
+    --surface-container: #f4f4f5;
+    --surface-container-high: #e9e9ec;
+    --surface-container-highest: #dcdce0;
+    --surface-tint: #6d28d9;
+
+    /* --- text on those surfaces --- */
+    --on-surface: #18181b;
+    --on-background: #18181b;
+    --on-surface-variant: #52525b;
+    --outline: #71717a;
+    --outline-variant: #e4e4e7;
+
+    /* --- accent: violet, used for actions and active state only --- */
+    --primary: #6d28d9;
+    --on-primary: #ffffff;
+    --primary-container: #ede9fe;
+    --on-primary-container: #4c1d95;
+    --primary-fixed: #ede9fe;
+    --on-primary-fixed: #4c1d95;
+    --on-primary-fixed-variant: #5b21b6;
+    --primary-fixed-dim: #ddd6fe;
+
+    --secondary: #5b21b6;
+    --on-secondary: #ffffff;
+    --secondary-container: #ede9fe;
+    --on-secondary-container: #3b0764;
+    --secondary-fixed: #ede9fe;
+    --on-secondary-fixed: #3b0764;
+    --on-secondary-fixed-variant: #4c1d95;
+    --secondary-fixed-dim: #ddd6fe;
+
+    --tertiary: #52525b;
+    --on-tertiary: #ffffff;
+    --tertiary-container: #e4e4e7;
+    --on-tertiary-container: #3f3f46;
+    --tertiary-fixed: #e4e4e7;
+    --on-tertiary-fixed: #27272a;
+    --on-tertiary-fixed-variant: #3f3f46;
+    /* Muted tone for text sitting on --inverse-surface (the footer). */
+    --tertiary-fixed-dim: #a1a1aa;
+
+    --error: #dc2626;
+    --on-error: #ffffff;
+    --error-container: #fee2e2;
+    --on-error-container: #7f1d1d;
+
+    --inverse-surface: #18181b;
+    --inverse-on-surface: #fafafa;
+    --inverse-primary: #a78bfa;
+
+    /* --- app chrome: flat and opaque, no glass --- */
+    --app-glass: #ffffff;
+    --app-glass-scrolled: #ffffff;
+    --app-sidebar-bg: #ffffff;
+    --app-admin-bg-color: #f4f4f5;
+    --app-thead-color: #fafafa;
+    --app-row-stripe: rgba(24, 24, 27, 0.018);
+    --app-hover-row: #f4f4f5;
+    --app-focus-ring: #6d28d9;
+    /* Transparent, not a colour: anything still composing a shadow from
+       these paints nothing, which is what makes the flat pass total
+       without having to find every box-shadow site. */
+    --app-shadow-color: transparent;
+    --app-shadow-color-strong: transparent;
+
+    /* --- status semantics (emerald / amber / rose, mapped to tokens) --- */
+    --status-ok-bg: #dcfce7;
+    --status-ok-fg: #166534;
+    --status-ok-dot: #16a34a;
+    --status-ok-line: #86efac;
+    --status-warn-bg: #fef3c7;
+    --status-warn-fg: #92400e;
+    --status-warn-dot: #d97706;
+    --status-warn-line: #fcd34d;
+    --status-bad-bg: #fee2e2;
+    --status-bad-fg: #9f1239;
+    --status-bad-dot: #e11d48;
+    --status-bad-line: #fecdd3;
+
+    /* --- elevation: intentionally absent.
+       Panels are separated by the container ramp above and by a
+       --ui-line hairline, so no shadow token is ever needed. --- */
+    --ui-ink: #18181b;
+    --ui-muted: #71717a;
+    --ui-line: #e4e4e7;
+    /* Form-control boundary. WCAG 1.4.11 wants 3:1 against the field fill,
+       which #a1a1aa missed at 2.56:1 — a flat design has no shadow to
+       fall back on, so the border IS the control's edge and it has to
+       be visible on its own. */
+    --ui-line-strong: #8b8b95;
+    --ui-purple: #6d28d9;
+    --ui-purple-dark: #4c1d95;
+    --ui-wash: #ffffff;
+    --ui-card-shadow: none;
+    --ui-card-shadow-hover: none;
+
+    /* Cursor-tracked card spotlight. The reference implementation uses
+       #ffffff40 (white at 25%), which only reads as a glow because its
+       card sits on a saturated purple gradient. Our cards are white, so
+       a white wash would be invisible — the tint has to come from the
+       glow itself. Kept low enough that text contrast is unaffected:
+       6d28d9 at 9% over #ffffff leaves body text at ~15.4:1. */
+    --ui-spotlight: rgba(109, 40, 217, 0.09);
+    --ui-spotlight-border: rgba(109, 40, 217, 0.34);
+
+    --shadow-card-rest: none;
+    --shadow-card-hover: none;
+    --shadow-card-active: none;
+}
+
+/* ---------------------------------------------------------------
+   2. DARK — neutral ramp inverted, same flat rules as light
+   ---------------------------------------------------------------
+   The canvas is the darkest field and each container level steps
+   lighter, so a panel is distinguishable from the page by tone alone
+   once the drop shadows are gone. --surface-container-lowest is the
+   card fill, which is why it sits ABOVE --background here (the
+   inverse of light mode, where the canvas is the darker field).
+   --------------------------------------------------------------- */
+.dark {
+    color-scheme: dark;
+
+    /* --- neutral surface ramp (canvas -> panel) --- */
+    --background: #0b0b0c;
+    --surface: #131316;
+    --surface-bright: #16161a;
+    --surface-dim: #08080a;
+    --surface-variant: #2a2a2f;
+    --surface-container-lowest: #16161a;
+    --surface-container-low: #1c1c20;
+    --surface-container: #222227;
+    --surface-container-high: #2a2a30;
+    --surface-container-highest: #34343b;
+    --surface-tint: #c4b5fd;
+
+    /* --- text on those surfaces --- */
+    --on-surface: #ededf0;
+    --on-background: #ededf0;
+    --on-surface-variant: #a1a1aa;
+    --outline: #8b8b94;
+    --outline-variant: #2e2e34;
+
+    /* --- accent: violet, lightened so it holds on a dark surface --- */
+    --primary: #a78bfa;
+    --on-primary: #2e1065;
+    --primary-container: #4c1d95;
+    --on-primary-container: #ede9fe;
+    --primary-fixed: #2e1065;
+    --on-primary-fixed: #ede9fe;
+    --on-primary-fixed-variant: #c4b5fd;
+    --primary-fixed-dim: #3b1d80;
+
+    --secondary: #c4b5fd;
+    --on-secondary: #2e1065;
+    --secondary-container: #4c1d95;
+    --on-secondary-container: #ede9fe;
+    --secondary-fixed: #2e1065;
+    --on-secondary-fixed: #ede9fe;
+    --on-secondary-fixed-variant: #ddd6fe;
+    --secondary-fixed-dim: #3b1d80;
+
+    --tertiary: #d4d4d8;
+    --on-tertiary: #27272a;
+    --tertiary-container: #3f3f46;
+    --on-tertiary-container: #fafafa;
+    --tertiary-fixed: #27272a;
+    --on-tertiary-fixed: #f4f4f5;
+    --on-tertiary-fixed-variant: #d4d4d8;
+    /* Muted tone for text sitting on --inverse-surface (the footer,
+         which inverts to a light panel in dark mode). */
+    --tertiary-fixed-dim: #52525b;
+
+    --error: #f87171;
+    --on-error: #450a0a;
+    --error-container: #450a0a;
+    --on-error-container: #fee2e2;
+
+    --inverse-surface: #fafafa;
+    --inverse-on-surface: #18181b;
+    --inverse-primary: #6d28d9;
+
+    /* --- app chrome: flat and opaque, no glass --- */
+    --app-glass: #131316;
+    --app-glass-scrolled: #131316;
+    --app-sidebar-bg: #131316;
+    --app-admin-bg-color: #0b0b0c;
+    --app-thead-color: #1c1c20;
+    --app-row-stripe: rgba(255, 255, 255, 0.016);
+    --app-hover-row: #1c1c20;
+    --app-focus-ring: #a78bfa;
+    --app-shadow-color: transparent;
+    --app-shadow-color-strong: transparent;
+
+    /* --- status semantics: dark backgrounds, light foregrounds --- */
+    --status-ok-bg: rgba(34, 197, 94, 0.16);
+    --status-ok-fg: #86efac;
+    --status-ok-dot: #22c55e;
+    --status-ok-line: rgba(34, 197, 94, 0.38);
+    --status-warn-bg: rgba(245, 158, 11, 0.16);
+    --status-warn-fg: #fcd34d;
+    --status-warn-dot: #f59e0b;
+    --status-warn-line: rgba(245, 158, 11, 0.38);
+    --status-bad-bg: rgba(244, 63, 94, 0.16);
+    --status-bad-fg: #fda4af;
+    --status-bad-dot: #fb7185;
+    --status-bad-line: rgba(244, 63, 94, 0.40);
+
+    /* --- elevation: intentionally absent (see the light block) --- */
+    --ui-ink: #ededf0;
+    --ui-muted: #a1a1aa;
+    --ui-line: #2e2e34;
+    /* Same 3:1 requirement as light: #52525b was 2.33:1 on the #16161a
+       panel fill, so it is stepped up to #6b6b76 (3.43:1). */
+    --ui-line-strong: #6b6b76;
+    --ui-purple: #a78bfa;
+    --ui-purple-dark: #7c3aed;
+    --ui-wash: #16161a;
+    --ui-card-shadow: none;
+    --ui-card-shadow-hover: none;
+
+    /* Dark panels already sit close to the canvas, so the spotlight can
+       carry more alpha than in light and still stay subtle. Uses the
+       lighter #a78bfa so it tints toward violet rather than muddying
+       the neutral panel. */
+    --ui-spotlight: rgba(167, 139, 250, 0.13);
+    --ui-spotlight-border: rgba(167, 139, 250, 0.45);
+
+    --shadow-card-rest: none;
+    --shadow-card-hover: none;
+    --shadow-card-active: none;
+}
+
+/* ---------------------------------------------------------------
+   3. STATUS PALETTE BRIDGING
+   ---------------------------------------------------------------
+   Status pills, badges, dots and borders use stock Tailwind palettes
+   (bg-emerald-100, text-emerald-800, border-emerald-200, ...) rather
+   than design tokens — 213 emerald, 111 amber, 14 rose/red uses across
+   186 files. Rather than edit that many call sites, the dark theme
+   remaps the literal utilities onto the semantic variables above.
+
+   Light mode is untouched, so this only ever applies inside .dark.
+   Every utility actually present in the markup is covered; the audit
+   script that produced these lists is the source of truth.
+   --------------------------------------------------------------- */
+.dark .bg-emerald-100,
+.dark .bg-emerald-50,
+.dark .bg-emerald-200,
+.dark .bg-\[\#DCFCE7\] { background-color: var(--status-ok-bg) !important; }
+.dark .text-emerald-800,
+.dark .text-emerald-700,
+.dark .text-emerald-600,
+.dark .text-\[\#15803D\] { color: var(--status-ok-fg) !important; }
+.dark .border-emerald-200,
+.dark .border-emerald-300 { border-color: var(--status-ok-line) !important; }
+.dark .bg-emerald-600,
+.dark .bg-emerald-500,
+.dark .bg-emerald-400,
+.dark .ring-emerald-500 { background-color: var(--status-ok-dot) !important; }
+.dark .ring-emerald-500 { --tw-ring-color: var(--status-ok-dot) !important; }
+
+.dark .bg-amber-100,
+.dark .bg-amber-50,
+.dark .bg-amber-200 { background-color: var(--status-warn-bg) !important; }
+.dark .text-amber-800,
+.dark .text-amber-700,
+.dark .text-amber-600,
+.dark .text-amber-500,
+.dark .text-amber-900 { color: var(--status-warn-fg) !important; }
+.dark .border-amber-200,
+.dark .border-amber-300 { border-color: var(--status-warn-line) !important; }
+.dark .bg-amber-600,
+.dark .bg-amber-500 { background-color: var(--status-warn-dot) !important; }
+
+.dark .bg-rose-100,
+.dark .bg-rose-500,
+.dark .bg-red-200,
+.dark .bg-red-50 { background-color: var(--status-bad-bg) !important; }
+.dark .text-rose-800,
+.dark .text-rose-700,
+.dark .text-rose-500,
+.dark .text-red-800 { color: var(--status-bad-fg) !important; }
+.dark .border-red-200,
+.dark .border-rose-200 { border-color: var(--status-bad-line) !important; }
+.dark .bg-rose-600,
+.dark .bg-rose-500 { background-color: var(--status-bad-dot) !important; }
+.dark .text-rose-500 { color: var(--status-bad-dot) !important; }
+
+/* Neutral grays (admin dashboard only) — slate-600/700 on a dark surface
+   is effectively invisible, and slate-100/400 are light-on-light chips. */
+.dark .text-slate-600,
+.dark .text-slate-700 { color: var(--on-surface-variant) !important; }
+.dark .bg-slate-100 { background-color: var(--surface-container-high) !important; }
+.dark .bg-slate-400 { background-color: var(--on-surface-variant) !important; }
+
+/* Violet/purple chips used in reports. */
+.dark .bg-violet-50,
+.dark .bg-violet-100,
+.dark .bg-purple-100,
+.dark .bg-\[\#EDE9FE\] { background-color: var(--surface-container-high) !important; }
+.dark .border-violet-200 { border-color: var(--outline-variant) !important; }
+.dark .text-\[\#6D28D9\] { color: var(--primary) !important; }
+
+/* ---------------------------------------------------------------
+   3b. WHITE TEXT ON A PRIMARY BUTTON
+   ---------------------------------------------------------------
+   9 buttons pair text-white with bg-primary. In dark mode bg-primary
+   becomes a light lavender, so white text on it is unreadable. These
+   are targeted with a COMPOUND selector rather than a blanket
+   .dark .text-white, because text-white is also correct over photo
+   overlays and dark chips, which must not be touched.
+   --------------------------------------------------------------- */
+.dark .bg-primary.text-white { color: var(--on-primary) !important; }
+.dark .bg-secondary.text-white { color: var(--on-secondary) !important; }
+.dark .bg-error.text-white { color: var(--on-error) !important; }
+
+/* Same defect reached through CSS rather than a utility class: the
+   checked protection box paints --primary and then painted white text
+   on it. --on-primary is the correct pairing in both themes (white in
+   light, deep purple in dark). */
+.dark .protection-check:checked ~ .protection-inner .protection-box { color: var(--on-primary); }
+
+/* ---------------------------------------------------------------
+   3c. FLOATING CONTROLS IN DARK
+   ---------------------------------------------------------------
+   Nothing to recolour here. The back-to-top button used to be a
+   hardcoded light gradient, which left a pale violet disc on a
+   near-black page, so dark mode repainted it as a filled primary
+   circle. It is drawn entirely from tokens now — surface fill, dashed
+   --outline-variant edge, muted arrow — so it follows the theme on its
+   own and the override is gone rather than left to force the old disc
+   back.
+   --------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------
+   4. NON-TOKEN WHITES
+   ---------------------------------------------------------------
+   bg-white is a literal, not a token (21 uses in how-it-works.php,
+   3 in customer/vehicle-details.php). Map it to the lowest surface so
+   those blocks do not punch a white hole in dark mode.
+   --------------------------------------------------------------- */
+.dark .bg-white { background-color: var(--surface-container-lowest) !important; }
+.dark .hover\:bg-white:hover { background-color: var(--surface-container-low) !important; }
+
+/* ---------------------------------------------------------------
+   5. FOCUS RING follows the theme (style.css hardcodes the violet)
+   --------------------------------------------------------------- */
+.dark a:focus-visible,
+.dark button:focus-visible,
+.dark input:focus-visible,
+.dark select:focus-visible,
+.dark textarea:focus-visible,
+.dark [tabindex]:focus-visible {
+    outline-color: var(--app-focus-ring);
+}
+
+/* ---------------------------------------------------------------
+   5b. SELECT OPTION LIST
+   ---------------------------------------------------------------
+   An open <select> is painted by the browser, not by the page, and
+   that one surface refused to follow the theme. The forms plugin
+   sets appearance: none and draws its own chevron, the fields carry
+   bg-transparent, so every <option> and <optgroup> came through
+   with a fully transparent background while its text took
+   --on-surface: near-white in dark mode.
+
+   Legibility therefore rested entirely on the browser choosing a
+   dark popup to go with the dark text. Where it does not - a machine
+   whose OS is still in light mode while the app itself is in dark
+   mode - the list draws near-white text on a light popup and the
+   choices are unreadable. That is what Manual Walk-In Booking's
+   vehicle picker was doing.
+
+   So the list is given an explicit surface from the same tokens the
+   field sits on, and is legible in either theme regardless of what
+   the OS would have chosen. Both are !important because the forms
+   plugin injects at runtime and lands after this stylesheet; that is
+   why sections 3b and 4 above need it too.
+
+   Disabled rows are the vehicles already committed to the chosen
+   dates, so they get --on-surface-variant - still around 7:1 against
+   --surface - rather than the UA's own grey, which is what made them
+   vanish on a light popup.
+   --------------------------------------------------------------- */
+select option,
+select optgroup {
+    background-color: var(--surface) !important;
+    color: var(--on-surface) !important;
+}
+
+select optgroup {
+    background-color: var(--surface-container-high) !important;
+    font-weight: 600;
+}
+
+select option:disabled {
+    color: var(--on-surface-variant) !important;
+}
+
+/* ---------------------------------------------------------------
+   6. LOGO
+   ---------------------------------------------------------------
+   Two independently-swapping pairs, because there are two different
+   situations:
+
+   - Navbar logo sits on the normal page surface, so the dark ink
+     artwork is right in light mode and the white artwork in dark.
+   - Footer logo sits on --inverse-surface, which INVERTS with the
+     theme: a dark footer in light mode, a light footer in dark mode.
+     So the correct logo there inverts the other way, and reusing the
+     navbar classes would leave a white logo on a white footer.
+
+   Every state is a display swap, so neither case causes layout shift.
+   --------------------------------------------------------------- */
+.theme-logo-light { display: inline; }
+.theme-logo-dark { display: none; }
+.dark .theme-logo-light { display: none; }
+.dark .theme-logo-dark { display: inline; }
+
+/* Footer / inverse-surface pair. */
+.theme-logo-inverse-light { display: inline; }  /* white art, light mode */
+.theme-logo-inverse-dark { display: none; }    /* dark ink art, dark mode */
+.dark .theme-logo-inverse-light { display: none; }
+.dark .theme-logo-inverse-dark { display: inline; }
+
+/* ---------------------------------------------------------------
+   7. THEME TRANSITION
+   ---------------------------------------------------------------
+   The swap is an iris that grows out of the control you clicked, so
+   the eye is led from the button out to the whole page instead of the
+   page simply flashing.
+
+   Built on the View Transitions API. The outgoing frame is held still
+   and the incoming frame is uncovered by an animated clip-path circle
+   — one pair of snapshots rather than a per-element animation list, so
+   text and borders stay crisp instead of being upscaled bitmaps.
+
+   The reveal deliberately reuses the same --ease-spring token and the
+   same duration the toggle icon morph uses, so a theme change reads as
+   part of one motion system rather than a separate effect bolted on top.
+   --------------------------------------------------------------- */
+:root {
+    --dur-theme-reveal: 400ms;
+    /* Overwritten per click from the control's bounding box. */
+    --theme-reveal-x: 50%;
+    --theme-reveal-y: 50%;
+    --theme-reveal-r: 0%;
+}
+
+::view-transition-old(root) {
+    animation: none;          /* hold: the new frame wipes over this */
+    mix-blend-mode: normal;
+    z-index: 0;
+}
+
+::view-transition-new(root) {
+    animation: carvella-theme-reveal var(--dur-theme-reveal) var(--ease-spring);
+    mix-blend-mode: normal;
+    z-index: 1;
+}
+
+@keyframes carvella-theme-reveal {
+    from { clip-path: circle(0 at var(--theme-reveal-x) var(--theme-reveal-y)); }
+    to   { clip-path: circle(var(--theme-reveal-r) at var(--theme-reveal-x) var(--theme-reveal-y)); }
+}
+
+/* --- The control, as its own transition group -------------------------
+   Without this the toggle is part of the `root` snapshot, and a snapshot
+   is a still image. The class flip that starts the knob slide and the
+   icon morph happens inside the update callback, so both were captured
+   at t=0 and shown for the whole wipe - then, the moment the overlay
+   cleared, the settled live element snapped into place. The switch
+   teleported and the icon popped, and the Motion spring queued behind
+   the wipe added a third beat. ~940ms in three pieces.
+
+   As its own group the control is lifted out of the root bitmap, painted
+   above the iris, and can cross-fade across it - so the flip reads as
+   happening under the wipe instead of after it.
+
+   The name is set on the clicked button by app-motion.js and cleared when
+   the transition settles, rather than declared here. A static name would
+   be duplicated on public pages, which render two controls (the navbar
+   one and the footer FAB); view-transition-names must be unique or the
+   browser throws and skips the whole transition. */
+::view-transition-group(carvella-theme-toggle) { z-index: 2; }
+
+::view-transition-old(carvella-theme-toggle) {
+    animation: none;          /* hold, so the new state cross-fades over it */
+    mix-blend-mode: normal;
+}
+
+::view-transition-new(carvella-theme-toggle) {
+    animation: carvella-toggle-swap 260ms var(--ease-smooth) both;
+    mix-blend-mode: normal;
+}
+
+@keyframes carvella-toggle-swap {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root),
+    ::view-transition-old(carvella-theme-toggle),
+    ::view-transition-new(carvella-theme-toggle) { animation: none; }
+}
+
+/* Fallback for engines without the View Transitions API: a plain colour
+   cross-fade. JS picks whichever path the browser supports, so this only
+   ever runs when the iris above cannot. Scoped to a class added for one
+   frame, and disabled for reduced-motion users. */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+    transition: background-color 260ms ease, border-color 260ms ease,
+                color 260ms ease, fill 260ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-transition,
+    .theme-transition *,
+    .theme-transition *::before,
+    .theme-transition *::after {
+        transition: none !important;
+    }
+}
+
+/* ---------------------------------------------------------------
+   8. THEME TOGGLE
+   ---------------------------------------------------------------
+   A physical switch: a knob that slides between the two halves and
+   two icons that cross-fade with it. Every state here is expressed in
+   CSS off the .dark class, so the control still works before (or
+   without) JavaScript. app-motion.js adds a spring rotation on the
+   icons on top of this when it can.
+   --------------------------------------------------------------- */
+.theme-toggle {
+    background: none;
+    border: 0;
+    padding: 0;
+    line-height: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- car variant -------------------------------------------------------
+   Admin navbar + customer profile. The front bumper of a luxury car,
+   seen head-on: wide stance, vertical-slat grille, slim horizontal
+   headlamps. In light mode the headlamps are unmistakably ON (halo +
+   lit lens + hot core); in dark mode they are off with only a faint DRL
+   trace. Everything is inline SVG, so this control is immune to the icon
+   font. State changes are pure CSS off .dark, matching the toggle family. */
+.theme-toggle--car {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;                  /* the front bumper needs more room than
+                                    the 2.25rem bell to stay readable */
+    height: 2.5rem;
+    border-radius: 9999px;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    color: var(--on-surface-variant);
+    transition: background-color var(--dur-base) var(--ease-smooth),
+                border-color var(--dur-base) var(--ease-smooth),
+                color var(--dur-base) var(--ease-smooth);
+}
+.theme-toggle--car:hover {
+    border-color: var(--ui-line-strong);
+    color: var(--on-surface);
+    background: var(--surface-container-low);
+}
+.theme-toggle--car:focus-visible {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 3px;
+}
+
+.theme-toggle__car { display: block; line-height: 0; }
+/* G8X M3/M4 front, head-on. The reading points are the oversized twin
+   kidney grilles dropping into the bumper, the sharp wedge headlamps
+   with LED eyebrows, the big black lower intake and the protruding
+   splitter blade. 40x30 units at 40px wide. */
+.car-svg { width: 40px; height: 30px; display: block; overflow: visible; }
+
+/* Body is the chassis silhouette; the power-dome creases cut into it. */
+.car-body   { fill: currentColor; }
+.car-crease { fill: currentColor; opacity: 0.5; }
+
+/* Twin kidneys: a chrome surround linking the two dark grille panels,
+   each with vertical chrome slats -- the G8X signature. Fixed colours so
+   the chrome stays chrome against the recess in both schemes. */
+.car-kidney { fill: #e6e2ee; }
+.car-grille { fill: #16121f; }
+.car-slat   { fill: #e6e2ee; }
+.car-intake { fill: #16121f; }
+.car-duct   { fill: #16121f; }
+.car-splitter { fill: #100d17; }
+
+/* --- the day/night signal ---------------------------------------------
+   Light mode: the headlamps are ON. This has to be unmistakable, so it
+   is carried by three stacked signals rather than a colour swap alone --
+   a wide soft halo, a bright lamp lens, and a hot white core. */
+.car-halo { fill: #ffcf5c; opacity: 0.5; }
+.car-lamp { fill: #ffe6a3; }
+.car-drl  { fill: #fff3cc; }
+.car-core { fill: #fffdf5; }
+
+.dark .car-halo { opacity: 0; }
+.dark .car-lamp { fill: #3b3644; }
+.dark .car-drl  { fill: #3b3644; }
+.dark .car-core { opacity: 0; }
+
+.car-halo,
+.car-lamp,
+.car-drl,
+.car-core { transition: fill var(--dur-base) var(--ease-smooth),
+                      opacity var(--dur-base) var(--ease-smooth),
+                      filter var(--dur-base) var(--ease-smooth); }
+
+/* Night keeps a faint DRL trace so the lamps read as off, not missing. */
+.dark .car-lamp { fill: #46404f; }
+
+.theme-toggle--car:hover .car-halo { opacity: 0.72; }
+.dark .theme-toggle--car:hover .car-halo { opacity: 0; }
+
+/* The halos swell outwards as the light comes on: the front of the car
+   blooming into daylight. */
+.car-halo { transform: scale(0.62); transform-origin: center; transform-box: fill-box; }
+.dark .car-halo { transform: scale(0.3); }
+.theme-toggle--car:hover .car-halo { transform: scale(1); }
+.dark .theme-toggle--car:hover .car-halo { transform: scale(0.3); }
+.car-halo { transition: transform 460ms var(--ease-spring); }
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle--car,
+    .car-halo, .car-lamp, .car-core { transition: none !important; }
+}
+
+/* --- car variant: profile-page hero ------------------------------------
+   The same car, given room to act as a design piece rather than a
+   utility. Day/night label and the Day/Night pill swap off .dark, so the
+   card describes the current theme with no JavaScript involved. */
+.theme-toggle--car-hero {
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 1.75rem;
+    background: var(--surface-container-low);
+}
+.theme-toggle--car-hero .car-svg { width: 96px; height: 72px; }
+.theme-toggle--car-hero:hover { background: var(--surface-container); }
+.theme-toggle--car-hero:focus-visible { outline-offset: 4px; }
+
+.car-label--night { display: none; }
+.dark .car-label--day   { display: none; }
+.dark .car-label--night { display: inline; }
+
+.car-mode-pill {
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 0.5rem 0.875rem;
+    border-radius: 9999px;
+    color: var(--on-surface-variant);
+    transition: background-color var(--dur-base) var(--ease-smooth),
+                color var(--dur-base) var(--ease-smooth);
+}
+/* Day is the active pill in light mode, Night in dark mode. */
+.car-mode-pill--day {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+.car-mode-pill--night { display: none; }
+.dark .car-mode-pill--day   { display: none; }
+.dark .car-mode-pill--night {
+    display: inline-block;
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .car-mode-pill { transition: none !important; }
+}
+
+/* --- img variant --------------------------------------------------------
+   Admin navbar. The whole control is a rendered toggle: a light-theme
+   label in light mode, a dark-theme label in dark mode, swapped purely
+   off .dark. Both faces are the same size so nothing shifts when the
+   theme flips. The faces are the user's two full-page renders (the dark
+   one is a centred labelled pill on a black canvas; the light one is a
+   light-mode scene), so each face frames its labelled band rather than
+   the whole canvas: object-fit covers the pill and object-position steers
+   the view to each render's label (dark sits lower in its frame than
+   light). Sized to sit beside the 36px round bell as one cluster. */
+.theme-toggle--img {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 9.5rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 1px solid var(--outline-variant);
+    overflow: hidden;
+    transition: border-color var(--dur-base) var(--ease-smooth);
+}
+.theme-toggle--img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+.theme-toggle__img--light { object-position: center 8%; }
+.theme-toggle__img--dark  { object-position: center 18%; }
+.theme-toggle__img--dark { display: none; }
+.dark .theme-toggle__img--light { display: none; }
+.dark .theme-toggle__img--dark  { display: block; }
+.theme-toggle--img:hover {
+    border-color: var(--ui-line-strong);
+}
+.theme-toggle--img:focus-visible {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 3px;
+}
+@media (max-width: 420px) {
+    .theme-toggle--img { width: 8rem; height: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle--img { transition: none !important; }
+}
+
+/* --- img variant: profile-page hero --------------------------------------
+   The same two rendered toggles, given room to act as a design piece rather
+   than a utility. Kept off .dark like the base variant, so the face swap
+   still works with no JavaScript. Aspect ratio follows the source renders
+   (674x422 / 674x411), which are wider than the 9.5rem x 2rem navbar pill,
+   so object-position is re-steered per face to keep the labelled band
+   centred in the taller frame rather than the top edge. */
+.theme-toggle--img-hero {
+    width: 11rem;
+    height: 5.5rem;
+    border-radius: 1.5rem;
+    border-color: var(--outline-variant);
+}
+.theme-toggle--img-hero:hover { border-color: var(--ui-line-strong); }
+.theme-toggle--img-hero:focus-visible { outline-offset: 4px; }
+.theme-toggle--img-hero .theme-toggle__img--light { object-position: center 26%; }
+.theme-toggle--img-hero .theme-toggle__img--dark  { object-position: center 34%; }
+@media (max-width: 640px) {
+    .theme-toggle--img-hero { width: 9.5rem; height: 4.75rem; }
+}
+@media (max-width: 420px) {
+    .theme-toggle--img-hero { width: 8rem; height: 4rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle--img-hero { transition: none !important; }
+}
+
+/* --- switch variant ----------------------------------------------------
+   Admin rail. This sits between two 36px circular buttons (the bell and
+   the avatar), so it is sized to that row rather than to itself:
+
+     height    36px, matching the w-9 h-9 siblings exactly
+     track     60x32, narrow enough that the label beside it does not
+               push the cluster wider than the search bar it balances
+     label     11px, 1px nudge up
+
+   The 1px is not decoration. A 12px text label next to a pill with
+   centred icons reads as sitting lower than the circles beside it, even
+   though flexbox centres all three on the same line. Nudging the label
+   on its own is what makes the row look aligned. It is a margin, not a
+   transform, because app-motion.js animates `y` on this button for its
+   hover lift and an inline transform would win over any CSS value. */
+.theme-toggle--switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 2px;                /* 32px track -> 36px, matches the bell */
+}
+
+.theme-toggle__state {
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--on-surface-variant);
+    min-width: 28px;
+    text-align: left;
+    transform: translateY(-1px);
+}
+.theme-toggle__state--dark { display: none; }
+.dark .theme-toggle__state--light { display: none; }
+.dark .theme-toggle__state--dark  { display: inline; }
+
+.theme-toggle__track {
+    position: relative;
+    display: block;
+    width: 60px;
+    height: 32px;
+    border-radius: 9999px;
+    background: var(--surface-container-high);
+    border: 1px solid var(--outline-variant);
+    transition: background-color var(--dur-base) var(--ease-smooth),
+                border-color var(--dur-base) var(--ease-smooth);
+}
+
+.theme-toggle__knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 9999px;
+    background: var(--primary);
+    transition: transform 420ms var(--ease-spring),
+                background-color var(--dur-base) var(--ease-smooth);
+}
+
+/* Dark: knob slides to the far side. 60 - 2 - 2 - 26 = 30px of travel. */
+.dark .theme-toggle__knob {
+    transform: translateX(30px);
+}
+
+.theme-toggle__icons {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7px;
+    pointer-events: none;
+}
+
+.theme-toggle__icon {
+    font-size: 15px;
+    line-height: 1;
+    transition: color var(--dur-base) var(--ease-smooth),
+                opacity var(--dur-base) var(--ease-smooth),
+                transform 420ms var(--ease-spring);
+}
+
+/* The icon under the knob stays legible; the one it leaves is muted.
+   Both sit on a var(--primary) knob, so both must use --on-primary:
+   in dark mode --primary is a light lavender, and --on-primary-fixed is
+   also light, which put the moon at 1.32:1 — invisible on the knob. */
+.theme-toggle__icon--sun  { color: var(--on-primary); opacity: 1;  }
+.theme-toggle__icon--moon { color: var(--on-surface-variant); opacity: 0.45; transform: rotate(-60deg) scale(0.7); }
+
+.dark .theme-toggle__icon--sun  { color: var(--on-surface-variant); opacity: 0.45; transform: rotate(60deg) scale(0.7); }
+.dark .theme-toggle__icon--moon { color: var(--on-primary); opacity: 1;  transform: rotate(0deg) scale(1); }
+
+.theme-toggle--switch:hover .theme-toggle__track {
+    border-color: var(--ui-line-strong);
+    background: var(--surface-container-highest);
+}
+.theme-toggle--switch:hover .theme-toggle__state { color: var(--on-surface); }
+.theme-toggle--switch:active .theme-toggle__knob { width: 30px; }
+.dark .theme-toggle--switch:active .theme-toggle__knob { transform: translateX(26px); }
+.theme-toggle--switch:focus-visible {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 3px;
+    border-radius: 9999px;
+}
+
+/* --- FAB variant -----------------------------------------------------
+   Public pages. Sits directly above .back-to-top-btn (fixed, 3rem,
+   right/bottom 1.25rem, z-index 120) as a matched pair on the right
+   edge: same 3rem rounded-square shape, same dashed hairline and
+   neutral surface the back-to-top control now uses, 1rem of vertical
+   gap. Keeping them in one visual stack reads as a deliberate control
+   cluster rather than a stray button floating over the content. */
+.theme-toggle--fab {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 5.25rem;              /* 1.25rem + 3rem + 1rem gap */
+    z-index: 121;
+}
+
+.theme-toggle--fab .theme-toggle__track {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--app-glass);
+    border: 1px dashed var(--outline-variant);
+    transition: background-color var(--dur-base) var(--ease-smooth),
+                border-color var(--dur-base) var(--ease-smooth);
+}
+
+/* No sliding knob in the circular variant: the icon swap is the whole
+   affordance, and a 28px knob has nowhere to travel. */
+.theme-toggle--fab .theme-toggle__knob { display: none; }
+
+.theme-toggle--fab .theme-toggle__icons {
+    position: static;
+    inset: auto;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Both icons share the centre; the incoming one is scaled in over the
+   outgoing one, which is what makes the morph read as one object. */
+.theme-toggle--fab .theme-toggle__icon {
+    position: absolute;
+    font-size: 21px;
+    will-change: transform, opacity;
+}
+
+.theme-toggle--fab .theme-toggle__icon--sun {
+    color: var(--on-surface-variant);
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+.theme-toggle--fab .theme-toggle__icon--moon {
+    color: var(--on-surface-variant);
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.4);
+}
+
+.dark .theme-toggle--fab .theme-toggle__icon--sun {
+    color: var(--on-surface-variant);
+    opacity: 0;
+    transform: rotate(90deg) scale(0.4);
+}
+.dark .theme-toggle--fab .theme-toggle__icon--moon {
+    color: var(--on-surface-variant);
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.theme-toggle--fab:hover .theme-toggle__track {
+    border-color: var(--ui-line-strong);
+    background: var(--surface-container-low);
+}
+.theme-toggle--fab:active .theme-toggle__track { transform: translateY(0) scale(0.94); }
+.theme-toggle--fab:focus-visible { outline: 2px solid var(--app-focus-ring); outline-offset: 3px; border-radius: 0.5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle__knob,
+    .theme-toggle__icon,
+    .theme-toggle--fab .theme-toggle__track { transition: none !important; }
+}

@@ -1,0 +1,2040 @@
+/* ========================================
+   CARVELLA DESIGN SYSTEM SUPPLEMENT
+   Tiny helpers that complement the Tailwind
+   stitch design system (header.php carries the
+   token config + CDN). Layout is fully utility
+   driven; this file keeps the brand marquee and
+   a few non-token helper classes.
+
+   THE UI IS FLAT
+   ---------------
+   Depth is carried by surface tone and a single hairline border.
+   There are no drop shadows, no glows, no gradient washes and no
+   frosted-glass backdrops anywhere in the product. Two mechanisms
+   enforce that rather than relying on every call site to comply:
+
+   1. The `--shadow-*` / `--ui-card-shadow` / `--app-shadow-color`
+      tokens in theme.css all resolve to `none` / `transparent`, so
+      anything still composing a shadow from a token paints nothing.
+   2. The SHADOW RESET further down neutralises the shadow UTILITY
+      classes, which is where the markup actually puts them.
+   ======================================== */
+
+/* ========================================
+   SHADOW RESET
+   ========================================
+   The markup reaches for shadows through Tailwind utilities
+   (shadow-sm … shadow-2xl, arbitrary shadow-[…], tinted
+   shadow-primary/25) and through three bespoke .shadow-luxury-*
+   helpers defined in includes/header.php.
+
+   The reset works on Tailwind's --tw-shadow custom property, NOT on
+   the box-shadow property. Both `shadow-*` and `ring-*` are compiled
+   into the same box-shadow declaration, so `box-shadow: none` would
+   also erase the rings on the avatar chips in admin/customers.php and
+   admin/activity-logs.php, which use ring-4 to cut the icon out of
+   its row. Clearing only the shadow layer keeps those rings intact
+   and still flattens every size and colour variant at once, so a new
+   page cannot reintroduce elevation by adding `shadow-lg`.
+
+   Focus rings stay for the same reason: a ring around a focused
+   control communicates state, not depth. The form-field focus ring is
+   set explicitly further down and is left alone.
+   ======================================== */
+[class*="shadow-"] {
+    --tw-shadow: 0 0 #0000 !important;
+}
+.shadow-luxury-1,
+.shadow-luxury-2,
+.shadow-luxury-glow {
+    box-shadow: none !important;
+}
+
+/* Backdrop blur was the other half of the glass treatment. The chrome
+   surfaces are opaque now, so a blur behind them is pure cost. */
+.navbar-glass,
+.admin-layout header,
+#sideNavBar,
+.theme-toggle--fab .theme-toggle__track,
+[class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Keyboard focus visibility.
+
+   The ring is kept for links, buttons and custom focusable elements, but
+   deliberately dropped for input/select/textarea. Two reasons:
+
+   1. It could not do the job it was there for. :focus-visible is specified
+      to match on elements that accept keyboard input even when focus
+      arrived from a pointer, because the caret is already an indicator -
+      browsers implement it that way. So this outline came up on click and
+      stayed up for the whole of typing, which is the opposite of
+      "keyboard focus visibility". Gating it more tightly is not possible
+      in CSS; it needs the pointer/keyboard distinction tracked in script.
+
+   2. On a text field it competes with the control's own border, and 2px
+      at 2px offset is wide enough to read as a second border.
+
+   Forms indicate focus with the border colour changing on :focus instead
+   (see the ui-purple rule further down). a/button/[tabindex] have no
+   border of their own to change, so for them this ring is the indicator
+   and it stays. */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+}
+
+/* Anchored sections clear the fixed navbar when scrolled to */
+main [id] {
+    scroll-margin-top: 5.5rem;
+}
+
+/* ========================================
+   SKIP LINK
+   ========================================
+   Rendered by includes/header.php as the first child of <body>, so it is the
+   first stop in the tab order on every page in the app.
+
+   Off-screen by a 1px margin rather than display:none, because a hidden
+   element is removed from the tab order entirely and the link would stop
+   working. It only becomes visible on :focus, so it costs nothing visually,
+   and it is raised above the sticky header (z-index 100 beats the z-50 the
+   app bar and public navbar use) so it does not land underneath them.
+
+   The focus ring is the outline rather than a border: the generic
+   :focus-visible rule further up already draws one, and the extra 3px inset
+   here keeps the label clear of the viewport edge while it is on screen. */
+.skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    margin: -4rem;
+    border-radius: 0.75rem;
+    background-color: var(--primary);
+    color: var(--on-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: none;
+    transition: margin 0.18s ease;
+}
+.skip-link:focus {
+    margin: 0;
+}
+.skip-link:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Terms / Privacy acknowledgment checkbox — check only, no fill */
+.agree-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+}
+.agree-box {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    border-radius: 0.375rem;
+    border: 2px solid var(--outline-variant);
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+}
+.agree-box .bi {
+    font-size: 0.9375rem;
+    line-height: 1;
+    color: var(--primary);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease-spring);
+}
+.agree-input:checked + .agree-box {
+    border-color: var(--primary);
+}
+.agree-input:checked + .agree-box .bi {
+    opacity: 1;
+    transform: scale(1);
+}
+.agree-input:focus-visible + .agree-box {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 2px;
+}
+
+/* Shared footer navigation */
+.footer-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: var(--tertiary-fixed-dim);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    text-decoration: none;
+    transition: color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-smooth);
+}
+.footer-link::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -4px;
+    left: 0;
+    height: 2px;
+    border-radius: 9999px;
+    background: var(--inverse-primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-base) var(--ease-smooth);
+}
+  .footer-link:hover,
+  .footer-link:focus-visible {
+    color: var(--inverse-on-surface);
+    transform: translateX(3px);
+  }
+.footer-link:hover::after,
+.footer-link:focus-visible::after {
+    transform: scaleX(1);
+}
+.footer-link:focus-visible {
+    outline: 2px solid var(--inverse-primary);
+    outline-offset: 4px;
+    border-radius: 0.25rem;
+}
+
+/* ========================================
+   Motion Design Tokens
+   ========================================
+   Colour and elevation tokens live in theme.css and are deliberately
+   NOT repeated here: this file loads after it, so a duplicate :root
+   block would silently win and re-introduce the old palette.
+   ======================================== */
+:root {
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+    --dur-fast: 0.25s;
+    --dur-base: 0.4s;
+    --dur-slow: 0.65s;
+    --dur-entrance: 0.55s;
+}
+
+/* ========================================
+   Page Transitions — content enter / leave
+   (driven by Motion in assets/js/app-motion.js;
+    no CSS animation here so scripted frames win cleanly)
+   ======================================== */
+
+/* Admin motion is controlled by assets/js/app-motion.js. */
+.admin-layout main {
+    animation: none !important;
+    transition: none !important;
+    will-change: opacity, transform;
+}
+
+/* ========================================
+   Scroll Reveal — Multi-Variant System
+
+   Every hidden state below is scoped to html[data-motion]. The
+   attribute is set pre-paint by includes/header.php and claimed by
+   app-motion.js. If that module never loads, the header's timer
+   removes the attribute and these rules stop matching, so content
+   renders visible rather than stuck at opacity 0.
+   ======================================== */
+html[data-motion] .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity var(--dur-entrance) var(--ease-smooth),
+        transform var(--dur-entrance) var(--ease-smooth);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* Scale variant — for hero sections and emphasis blocks */
+html[data-motion] .reveal-scale {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+    transition:
+        opacity var(--dur-entrance) var(--ease-smooth),
+        transform var(--dur-entrance) var(--ease-smooth);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-scale.is-visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+/* Fade-left variant — for timeline items */
+html[data-motion] .reveal-left {
+    opacity: 0;
+    transform: translateX(-24px);
+    transition:
+        opacity var(--dur-entrance) var(--ease-smooth),
+        transform var(--dur-entrance) var(--ease-smooth);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-left.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+/* Fade-right variant — for sticky sidebar content */
+html[data-motion] .reveal-right {
+    opacity: 0;
+    transform: translateX(24px);
+    transition:
+        opacity var(--dur-entrance) var(--ease-smooth),
+        transform var(--dur-entrance) var(--ease-smooth);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal-right.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ========================================
+   Card Hover — Flat Affordance
+   ========================================
+   Cards no longer lift. Hover is communicated by the border
+   darkening (see the shared-surface pass near the bottom of this
+   file) and by a 4px translate, which still reads as "this responds"
+   without introducing depth.
+   ======================================== */
+.glass-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--surface-variant);
+    transition:
+        transform var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth),
+        background-color var(--dur-base) var(--ease-smooth);
+}
+
+/* Cursor-tracked spotlight, ported from the reference implementation
+   at renlenon.vercel.app (its .card-spotlight rule).
+
+   Layering contract, unchanged from the reference and load-bearing:
+   isolation:isolate makes a stacking context so the glow cannot bleed
+   into ancestors; overflow:hidden clips it to the rounded corners;
+   ::before sits at z-index 1 with pointer-events:none so it never
+   intercepts clicks; and every direct child is forced to z-index 2 so
+   the card's content paints above the wash.
+
+   Only the colour differs. The reference glows #ffffff40 (white at
+   25%) and reads as purple because its card fill is already a
+   saturated gradient; on our white cards a white wash is invisible, so
+   the tint lives in --ui-spotlight instead. That is also why the glow
+   is a flat wash with no shadow behind it: it is a colour shift, not
+   a fake light source, so it does not contradict the flat system. */
+.card-spotlight {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    --spotlight-color: var(--ui-spotlight);
+    /* Full set, not just border-color: .card-spotlight is applied on top
+       of .vehicle-card / .veh-card / .glass-card, and this rule wins the
+       cascade over their shorter transition lists. Narrowing it to
+       border-color would silently cancel their transform tween. */
+    transition:
+        transform var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth),
+        background-color var(--dur-base) var(--ease-smooth);
+}
+.card-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at var(--mouse-x) var(--mouse-y),
+        var(--spotlight-color),
+        transparent 72%
+    );
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity .35s ease;
+}
+.card-spotlight:hover::before,
+.card-spotlight:focus-within::before {
+    opacity: 1;
+}
+.card-spotlight > * {
+    position: relative;
+    z-index: 2;
+}
+/* Exception the reference does not need: it has no children taken out
+   of flow. Our step-flow cards carry a corner ribbon
+   (absolute -top-3 right-6), and the blanket rule above would flip it
+   to position:relative, which drags the ribbon into the flow and
+   offsets it by the negative inset instead of pinning it to the corner.
+   It stays absolute and keeps positioning against .card-spotlight,
+   which is position:relative. */
+.card-spotlight > .absolute {
+    position: absolute;
+}
+.card-spotlight > .fixed {
+    position: fixed;
+}
+/* The border firms up alongside the wash so the card reads as engaged
+   on pointer-only devices too, where the glow itself is the only cue. */
+.card-spotlight:hover,
+.card-spotlight:focus-within {
+    border-color: var(--ui-spotlight-border);
+}
+.glass-card:active {
+    transform: translateY(0);
+}
+
+/* Vehicle card specific hover */
+.veh-card {
+    transition:
+        transform var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth);
+}
+/* Vehicle card image — static (no zoom on hover) */
+.veh-card > div:first-child,
+.vehicle-card > div:first-child {
+    overflow: hidden;
+}
+.veh-card > div:first-child img,
+.vehicle-card > div:first-child img {
+    backface-visibility: hidden;
+}
+
+/* ========================================
+   Pill & Button — Micro-Interactions
+   ======================================== */
+/* Flat by design: the accent pill reacts with a fill shift rather
+   than a coloured glow around it. */
+.pill-accent-glow {
+    transition:
+        transform var(--dur-fast) var(--ease-smooth),
+        background-color var(--dur-base) var(--ease-smooth);
+}
+.pill-accent-glow:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+}
+.pill-accent-glow:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Ghost button pill transition */
+.btn-ghost-pill {
+    position: relative;
+    overflow: hidden;
+    transition:
+        background-color var(--dur-base) var(--ease-smooth),
+        color var(--dur-base) var(--ease-smooth),
+        border-color var(--dur-base) var(--ease-smooth),
+        transform var(--dur-fast) var(--ease-smooth),
+}
+.btn-ghost-pill:hover {
+    transform: translateY(-1px);
+}
+.btn-ghost-pill:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Primary CTA — animated fill sweep */
+.btn-primary-sweep {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+        color var(--dur-base) ease,
+        transform var(--dur-fast) var(--ease-smooth);
+}
+.btn-primary-sweep::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 0;
+    background: var(--secondary);
+    border-radius: inherit;
+    z-index: -1;
+    transition: width 0.45s var(--ease-smooth);
+}
+.btn-primary-sweep:hover::before {
+    width: 100%;
+}
+.btn-primary-sweep:hover {
+    transform: translateY(-2px);
+}
+.btn-primary-sweep:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Filter pill active transition */
+.filter-pill-active {
+    transition:
+        background-color 0.3s var(--ease-smooth),
+        color 0.3s var(--ease-smooth),
+                transform 0.2s var(--ease-smooth);
+}
+
+/* ========================================
+   Avatar Ring
+   ========================================
+   Was a rotating conic-gradient halo. Removed: it is decoration
+   layered outside the element's own bounds, which is exactly the
+   kind of effect a flat system has no place for. The ring rule is
+   kept as an empty hook so markup referencing it does not break.
+   ======================================== */
+.avatar-glow {
+    position: relative;
+}
+.avatar-glow::after {
+    display: none;
+}
+
+/* ========================================
+   Status Indicator Animations
+   ======================================== */
+.status-dot-animated {
+    position: relative;
+}
+.status-dot-animated::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0;
+    animation: status-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes status-ping {
+    0% { transform: scale(1); opacity: 0.4; }
+    75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+/* ========================================
+   Table Row Entrance
+   ======================================== */
+html[data-motion] .table-row-enter {
+    opacity: 0;
+    transform: translateX(-12px);
+    transition:
+        opacity 0.35s var(--ease-smooth),
+        transform 0.35s var(--ease-smooth);
+    transition-delay: var(--row-delay, 0ms);
+}
+.table-row-enter.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ========================================
+   Step Indicator
+   ========================================
+   Was a pulsing gradient halo sitting outside the step's bounds. It
+   is decoration rather than state, so it is removed; the step keeps
+   its filled background to carry the active state. */
+.step-active {
+    position: relative;
+}
+.step-active::after {
+    display: none;
+}
+
+/* ========================================
+   Empty State Float Animation
+   ======================================== */
+.empty-state-icon {
+    animation: empty-float 3s ease-in-out infinite;
+}
+@keyframes empty-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* ========================================
+   Brand Marquee (verified: scrolls brand list)
+   ======================================== */
+
+/* Section heading: a hairline rule flanking the label on each side, so the
+   band reads as an intentional piece of the page rather than a stray line of
+   text. The 32rem cap matters - without it the rules run the full 92rem
+   container and read as page borders, not a heading flourish. */
+.marquee-heading {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 26rem;
+    margin: 0 auto 1.25rem;
+}
+
+/* Dashed rather than a filled 1px bar, so these flanking rules match the
+   card outlines and the reference site (whose horizontal dividers are
+   `border-dashed`). Expressed as a real top border on a zero-height flex
+   item instead of a background gradient, which means the dash pattern is
+   the exact same one the cards draw. */
+.marquee-heading-rule {
+    flex: 1 1 auto;
+    border-top: 1px dashed var(--outline-variant);
+}
+
+.marquee-heading-label {
+    flex: 0 0 auto;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.625rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--outline);
+    white-space: nowrap;
+}
+
+.marquee {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+    padding: 0.25rem 0;
+    /* Base: black marks, correct on the light panel. */
+    --marquee-logo-filter: grayscale(100%) brightness(0);
+    --marquee-logo-opacity: 0.8;
+}
+
+.marquee-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+}
+
+.marquee-track-set {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.marquee-item {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 5.25rem;
+    padding: 0 1.25rem;
+    cursor: default;
+}
+
+/* One hairline dot centred in each gutter: rhythm between brands without
+   turning the logos into chips or tiles (no background, no border - that
+   decision stands). It fades out while the strip is hovered so the colour
+   reveal is never obstructed by a stray mark. */
+.marquee-item::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--outline);
+    opacity: 0.45;
+    transform: translate(50%, -50%);
+    transition: opacity 0.4s var(--ease-smooth);
+}
+
+/* Brand mark.
+
+   Resting state: a neutral, receded mark for the logo wall.
+
+   Hover: the source marks are dark artwork on transparency (verified:
+   five of the six are near-black greyscale, and Ford is a dark blue
+   oval), so on the LIGHT panel dropping to the true pixels is a real
+   reveal - the dark marks appear on white. The DARK panel cannot do
+   that (they would vanish on the near-black fill), so it carries its
+   own adapted override below.
+
+   No tile, no chip, no background, in either theme. The
+   padding / border / background that used to be here existed only to
+   reserve space for the white chip in dark mode; with the chip gone
+   they would just shrink every logo by 0.4rem for nothing, so they
+   are removed rather than left as dead weight. */
+.marquee-item img {
+    height: 3.5rem;
+    width: auto;
+    max-width: 9rem;
+    object-fit: contain;
+    filter: var(--marquee-logo-filter);
+    opacity: var(--marquee-logo-opacity);
+    transition: filter 0.4s var(--ease-smooth),
+        opacity 0.4s var(--ease-smooth),
+        transform 0.4s var(--ease-smooth);
+}
+
+.marquee-item-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ui-muted);
+    white-space: nowrap;
+    transition: color 0.4s var(--ease-smooth);
+}
+
+/* Dark: invert to white so the resting wall is readable. One recessive
+   tone that reads clearly as a brand mark at rest without competing with
+   the section title above it. */
+.dark .marquee {
+    --marquee-logo-filter: grayscale(100%) brightness(0) invert(1);
+    --marquee-logo-opacity: 0.68;
+}
+
+.marquee:hover .marquee-item-label {
+    color: var(--on-surface-variant);
+}
+
+.marquee:hover .marquee-item::after {
+    opacity: 0;
+}
+
+/* Hovering the panel is enough - it covers the per-item case too,
+   and one selector avoids a specificity fight. Logo only, no
+   background in either theme. On the light panel this shows the true
+   pixels; on the dark panel the .dark override below keeps the marks
+   adapted so dark artwork does not disappear. */
+.marquee:hover .marquee-item img {
+    filter: none;
+    opacity: 1;
+}
+
+/* Dark-mode pause / reveal.
+
+   The source marks are dark artwork, so the light-mode `filter: none`
+   reveal paints near-black logos on the near-black #16161a panel and
+   they vanish. Keep them adapted to the dark panel instead: invert the
+   lightness while rotating the hue back 180deg, so pure black marks
+   become clean white and a coloured mark (Ford's blue) keeps its hue;
+   the brightness lift turns the recessed resting wall into crisp,
+   full-strength logos. It adds the .dark scope, so it has higher
+   specificity than the light-mode rule above and always wins. */
+.dark .marquee:hover .marquee-item img {
+    filter: invert(1) hue-rotate(180deg) brightness(1.12);
+}
+
+/* 1.05, not the old 1.15: the item is a fixed column with only a little
+   slack above and below the logo, so a 1.15 scale pushed the mark past
+   its own column and into the neighbouring item's gutter. */
+.marquee-item:hover img {
+    transform: translateY(-2px) scale(1.05);
+}
+
+.marquee-item:hover .marquee-item-label {
+    color: var(--on-surface);
+}
+
+/* ========================================
+   Utility helpers
+   ======================================== */
+.scrollbar-none {
+    scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+
+.shimmer-bg {
+    background: linear-gradient(90deg, var(--surface-container) 0%, var(--surface-container-low) 50%, var(--surface-container) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite linear;
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ========================================
+   Premium Navbar Glow Highlight
+   ======================================== */
+
+/* Opaque navbar bar. On scroll the hairline is all that changes —
+   app-motion.js animates borderBottomColor to drive this. */
+.navbar-glass {
+    position: relative;
+    overflow: visible;
+    animation: navbar-drop .65s var(--ease-smooth) both;
+    transition: background-color .35s ease, border-color .35s ease;
+}
+@keyframes navbar-drop {
+    from { opacity: 0; transform: translateY(-100%); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.navbar-glass.navbar-scrolled {
+    background: var(--app-glass-scrolled) !important;
+    border-color: var(--ui-line-strong);
+}
+.navbar-glass .nav-link,
+.navbar-glass nav a {
+    position: relative;
+    transition: color .3s ease;
+}
+/* Desktop link entrance — soft rise, staggered */
+.navbar-glass nav a {
+    opacity: 1;
+    animation: nav-link-in .5s var(--ease-smooth) backwards;
+    animation-delay: calc(0.18s + var(--nav-i, 0) * 70ms);
+}
+@keyframes nav-link-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Hover — text tints to primary purple (muted → primary) */
+.navbar-glass .nav-link:hover,
+.navbar-glass nav a:hover {
+    color: var(--primary);
+}
+.mobile-menu-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transform: translateY(-8px);
+    transition: grid-template-rows .4s var(--ease-smooth), opacity .28s ease, transform .35s var(--ease-smooth), padding .35s var(--ease-smooth);
+}
+.mobile-menu-panel > * {
+    min-height: 0;
+}
+.mobile-menu-panel.is-open {
+    grid-template-rows: 1fr;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    opacity: 1;
+    transform: translateY(0);
+}
+.mobile-menu-panel.is-open nav a {
+    opacity: 0;
+    animation: nav-link-in .45s var(--ease-smooth) forwards;
+    animation-delay: calc(var(--nav-i, 0) * 60ms + 40ms);
+}
+@media (min-width: 768px) {
+    .mobile-menu-panel {
+        display: none;
+    }
+}
+.user-menu {
+    transform-origin: top right;
+    transition: opacity .2s ease, transform .2s ease;
+}
+.user-menu:not(.hidden) {
+    animation: dropdown-in .2s var(--ease-smooth) both;
+}
+@keyframes dropdown-in {
+    from { opacity: 0; transform: translateY(-8px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* The "liquid glass" sheen that used to sweep across the navbar.
+   A moving specular highlight is a glass cue, so it is removed with
+   the glass treatment; the navbar is now a plain opaque bar with a
+   hairline underline. */
+.navbar-glass::after {
+    display: none;
+}
+
+/* Desktop Active — clean flat color only (renlenon-style, brand purple) */
+a.nav-active-underline,
+a.nav-active-underline:hover,
+a.nav-active-underline:focus {
+    position: relative !important;
+    color: var(--on-primary-fixed-variant) !important;
+    font-weight: 700 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    transition: color 0.25s ease !important;
+    z-index: 2 !important;
+}
+a.nav-active-underline::after {
+    content: none !important;
+}
+a.nav-active-underline .bi {
+    color: inherit !important;
+}
+a.nav-active-underline:hover {
+color: var(--primary) !important;
+}
+
+/* Mobile Active — clean flat color only (brand purple) */
+a.nav-active-underline-mobile,
+a.nav-active-underline-mobile:hover,
+a.nav-active-underline-mobile:focus {
+    position: relative !important;
+    color: var(--on-primary-fixed-variant) !important;
+    font-weight: 700 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    text-shadow: none !important;
+    transition: color 0.25s ease !important;
+    z-index: 2 !important;
+}
+a.nav-active-underline-mobile::after {
+    content: none !important;
+}
+a.nav-active-underline-mobile .bi {
+    color: inherit !important;
+}
+
+/* ========================================
+   Hero Section Entrance
+   ======================================== */
+html[data-motion] .hero-entrance {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    transition:
+        opacity 0.8s var(--ease-smooth),
+        transform 0.8s var(--ease-smooth);
+}
+.hero-entrance.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+html[data-motion] .hero-entrance-child {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+        opacity 0.6s var(--ease-smooth),
+        transform 0.6s var(--ease-smooth);
+    transition-delay: var(--hero-delay, 0ms);
+}
+.hero-entrance.is-visible .hero-entrance-child {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========================================
+   Protection Checkbox Animation
+   ======================================== */
+.protection-check:checked ~ .protection-inner {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+.protection-check:checked ~ .protection-inner .protection-box {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+      animation: check-pop 0.35s var(--ease-spring) both;
+}
+/* The tick inside .protection-box is a real glyph, so it would paint at rest
+   in the muted border colour and read as a half-ticked box. Held at zero
+   until the check is on; the label wraps a .sr-only input, so focus has to
+   be forwarded to the pill by hand or keyboard users get no ring at all. */
+.protection-box > .bi {
+  opacity: 0;
+  transition: opacity .2s var(--ease-smooth);
+}
+.protection-check:checked ~ .protection-inner .protection-box > .bi {
+  opacity: 1;
+}
+.protection-check:focus-visible ~ .protection-inner {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .protection-box > .bi,
+  .protection-check:checked ~ .protection-inner { transition: none !important; }
+}
+@keyframes check-pop {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* ========================================
+   Flash Alert Entrance
+   ======================================== */
+.alert-enter {
+    animation: alert-slide-in 0.4s var(--ease-smooth) both;
+}
+@keyframes alert-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ========================================
+   Sticky Sidebar Entry
+   ======================================== */
+html[data-motion] .sidebar-sticky-enter {
+    opacity: 0;
+    transform: translateX(20px);
+    transition:
+        opacity 0.6s var(--ease-smooth) 0.2s,
+        transform 0.6s var(--ease-smooth) 0.2s;
+}
+.sidebar-sticky-enter.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ========================================
+   Landing, Fleet & How-It-Works Polish
+   ======================================== */
+
+/* Fleet card (home) — static. The card no longer lifts, its icon no
+   longer pops, and (see the markup) its photo no longer zooms; hover is
+   carried by the border-color change alone. */
+.vehicle-card {
+    transition: border-color var(--dur-base) var(--ease-smooth);
+}
+
+/* Step / workflow card — the numbered badge no longer pops or rotates on
+   hover. Kept as an explicit rule so a future edit does not reintroduce
+   movement by accident. */
+.step-flow-icon {
+    display: inline-block;
+    transition: none;
+}
+
+/* Filter pills (fleet catalog) smooth state swap. .fleet-filter-btn was the
+   home-page chip class; it is gone with the chips, and its rule would have
+   shadowed Tailwind's utilities on .veh-filter-pill because it is a plain
+   class selector, so dropping it also lets the pills use their own markup. */
+.veh-filter-pill {
+    transition:
+        background-color .3s var(--ease-smooth),
+        color .3s var(--ease-smooth),
+        border-color .3s var(--ease-smooth),
+                transform .2s var(--ease-spring);
+}
+.veh-filter-pill:active {
+    transform: scale(.94);
+}
+
+/* Card re-enter after filtering — intentionally a no-op now. Filtering
+   changes which cards are visible; those cards appear in place rather than
+   sliding/scaling back in. The class and window.reenterCard() stay so the
+   filter scripts keep working unchanged. */
+.card-reenter {
+    animation: none;
+}
+
+/* Calculator value pulse */
+.value-pulse {
+    animation: value-pulse .45s var(--ease-smooth);
+    display: inline-block;
+}
+@keyframes value-pulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.14); }
+    100% { transform: scale(1); }
+}
+
+/* Ambient decorative orbs — blurred gradient blobs. Hidden rather than
+   removed so the absolutely-positioned markup on how-it-works.php
+   keeps its own layout untouched. */
+.ambient-orb {
+    display: none;
+}
+
+/* The homepage hero card sits on a blurred gradient blob (deco-blob).
+   That blob is the page's only "spotlight" and it is exactly the kind
+   of atmospheric wash a flat system rejects: it fakes elevation with
+   colour, and it costs a blur filter on every paint. The card's own
+   border now separates it from the canvas. */
+.deco-blob {
+    display: none;
+}
+
+/* FAQ accordion — grid-template-rows technique (no max-height layout thrash) */
+.faq-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+        grid-template-rows var(--dur-base) var(--ease-smooth),
+        opacity var(--dur-fast) ease;
+}
+.faq-content > * {
+    min-height: 0;
+    overflow: hidden;
+}
+.faq-item.faq-open .faq-content {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+/* ========================================
+   Back to Top — four-corner surface, dashed outline
+   ========================================
+   Matches the floating control on the reference site
+   (renlenon.vercel.app): a rounded square rather than a circle, outlined
+   with a dashed hairline instead of a fill-matched solid edge. A dashed
+   border only reads if line and fill differ, so the button is a neutral
+   surface with a muted arrow rather than the old filled primary disc.
+   Every colour is a token, so it themes itself in both modes. */
+.back-to-top-btn {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 120;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface-variant);
+    background: var(--surface-container-lowest);
+    border: 1px dashed var(--outline-variant);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+    visibility: hidden;
+    transition:
+        opacity var(--dur-base) var(--ease-smooth),
+        transform var(--dur-base) var(--ease-smooth),
+        visibility 0s linear var(--dur-base),
+        background-color var(--dur-base) var(--ease-smooth);
+}
+
+/* ========================================
+   SHARED SURFACE + CONTROL PASS
+   Visual-only refinements shared by the customer and admin surfaces.
+   Layout, spacing and component structure are untouched; what changes
+   is that separation is drawn with a hairline and a fill change
+   instead of a shadow.
+   ======================================== */
+
+/* theme.css owns the colour tokens. An earlier copy of this block
+   re-declared --ui-* here, which silently overrode the light values
+   from theme.css because this file loads last; it has been removed so
+   there is a single source of truth. */
+
+/* The page canvas is a flat fill. It used to carry two soft violet
+   radial glows; the tone difference between --background and the
+   card fill now does that work, so there is nothing to paint here. */
+body {
+    background-image: none;
+}
+
+/* Shared surfaces: one consistent hairline, and a border that
+   darkens on hover so the affordance survives the loss of shadow. */
+.bg-surface-container-lowest,
+.glass-card,
+.vehicle-card,
+.veh-card {
+    border-color: var(--ui-line);
+}
+
+.bg-surface-container-lowest:hover,
+.glass-card:hover,
+.vehicle-card:hover,
+.veh-card:hover {
+    border-color: var(--ui-line-strong);
+}
+
+/* Card outlines are dashed, ported from the reference implementation at
+   renlenon.vercel.app (its project cards carry `border-dashed`). Only the
+   border *style* is set here; the width and colour keep coming from
+   whichever rule already draws the edge — `.glass-card`'s own `border`,
+   the `border-outline-variant/40` utility on the dashboard tiles,
+   `border-emerald-200/70` on the status tiles, and so on — so the themed
+   colours and the hover darkening above keep working. Scoped to the card
+   family only, so menus, modals, sidebars and plain panels stay solid.
+
+   !important is load-bearing. The Tailwind Play CDN injects its `.border`
+   utility (which sets border-style) after this stylesheet, so an unmarked
+   border-style would lose the tie on the spotlight cards and stay solid.
+   Width and colour are deliberately NOT forced: a card with no border
+   (border-width: 0) paints nothing dashed either way. */
+.glass-card,
+.vehicle-card,
+.veh-card,
+.card-spotlight,
+.step-flow-card,
+.spot-card,
+.auth-card {
+    border-style: dashed !important;
+}
+
+/* Make interactive controls feel intentional without changing their geometry. */
+button,
+a,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+a,
+select,
+input[type="checkbox"],
+input[type="radio"] {
+    cursor: pointer;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+    border-color: var(--ui-line-strong) !important;
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover,
+textarea:hover {
+    border-color: var(--ui-purple) !important;
+}
+
+/* Focus is indicated by the border colour alone, deliberately.
+
+   This used to add a 5px double ring (a 3px surface gap inside a 5px purple
+   halo) and was exempted from the flat-design pass on the grounds that a
+   focus ring is a state indicator, not depth. It is both: 5px of halo
+   around a control reads as a bordered card, and it was the loudest thing
+   on the page. The border-colour change below is the indicator now - it is
+   the element's own boundary changing, which is what WCAG 2.4.7 asks for,
+   and 2.4.11 Focus Appearance, which would demand a specific indicator
+   area, is AAA.
+
+   Kept as an explicit box-shadow: none rather than just deleting the
+   declaration, because it is !important and would otherwise be reinstated
+   by any later lower-priority rule. outline: none stays for the same
+   reason - it stops the UA's default focus outline. */
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+    border-color: var(--ui-purple) !important;
+    box-shadow: none !important;
+    outline: none;
+}
+
+/* Global buttons keep their existing size and placement. Their hover
+   state is now a fill shift rather than a lifted, glowing surface. */
+button.bg-primary:hover,
+a.bg-primary:hover,
+button.bg-secondary:hover,
+a.bg-secondary:hover {
+    background: var(--secondary) !important;
+}
+
+/* Customer-facing navigation and footer. */
+.navbar-glass {
+    background: var(--app-glass) !important;
+    border-bottom-color: var(--outline-variant) !important;
+}
+
+.navbar-glass .nav-link,
+.navbar-glass nav a {
+    border-radius: 0;
+}
+
+/* No pill background on hover — selection is cued by bold purple text only. */
+
+/* The footer is separated from the page by its own dark fill, not by
+   a shadow cast upwards. */
+footer {
+    box-shadow: none;
+}
+
+/* Admin console: flat canvas, hairline rail, no blur. */
+.admin-layout {
+    background: var(--app-admin-bg-color) !important;
+}
+
+.admin-layout main {
+    position: relative;
+}
+
+.admin-layout main > div,
+.admin-layout main > section {
+    transition: border-color .25s ease, background-color .25s ease;
+}
+
+.admin-layout main > div.bg-surface-container-lowest:hover,
+.admin-layout main > section.bg-surface-container-lowest:hover {
+    border-color: var(--ui-line-strong);
+}
+
+#sideNavBar {
+    background: var(--app-sidebar-bg) !important;
+    border-color: var(--outline-variant) !important;
+}
+
+/* The active rail item is a filled pill, so it is named by --primary
+   rather than by a shadow. */
+#sideNavBar .nav-link {
+    border: 1px solid transparent;
+}
+
+#sideNavBar .nav-link:hover {
+    background: var(--surface-container-low);
+    border-color: transparent;
+}
+
+#sideNavBar .nav-link.bg-primary {
+    border-color: transparent;
+}
+
+.admin-layout table thead {
+    background: var(--app-thead-color);
+}
+
+.admin-layout table th {
+    color: var(--on-surface-variant);
+    font-weight: 700;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+}
+
+.admin-layout table tbody tr {
+    transition: background-color .2s ease;
+}
+
+/* Row hover is a tone change plus a 3px rule down the leading edge.
+   The rule is an inset shadow rather than a border because a border
+   would push every cell 3px sideways on hover and reflow the table. */
+.admin-layout table tbody tr:hover {
+    background: var(--app-hover-row);
+    box-shadow: inset 3px 0 0 var(--ui-purple);
+}
+
+/* ========================================
+   Admin tables — final polish (visual only, layout untouched)
+   ======================================== */
+
+/* Uniform gutters so columns align consistently across pages; inline
+   chips/badges/actions center on their text baseline instead of hugging
+   the top of the cell. */
+.admin-layout table tbody td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+}
+.admin-layout table thead th {
+    padding: .875rem 1.25rem;
+    vertical-align: middle;
+}
+
+/* Very subtle zebra — decoration only; hover and intentional row tints
+   still read clearly on top. */
+.admin-layout table tbody tr:nth-child(even) {
+    background: var(--app-row-stripe);
+}
+
+/* Crisp dividing line under the column header. */
+.admin-layout table thead {
+    border-bottom: 1px solid var(--outline-variant);
+}
+
+/* Status chips and pill controls get a hairline edge so they sit cleanly
+   against hover-tinted rows. */
+.admin-layout table tbody td .rounded-full {
+    outline: 1px solid var(--outline-variant);
+    outline-offset: -1px;
+}
+
+/* Empty / no-records rows: calm, clearly secondary to real data. */
+.admin-layout table td.text-center .bi {
+    opacity: 0.55;
+}
+
+/* Keyboard focus is unmistakable on admin controls. */
+.admin-layout a:focus-visible,
+.admin-layout button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Wide tables scroll with a slim, brand-tinted rail instead of clunky bars.
+   `:not(.scrollbar-none)` is load-bearing: this two-class selector would
+   otherwise beat the one-class `.scrollbar-none` opt-out, so an element that
+   asked for no rail (the bay selector in admin/vehicles.php) would still show
+   one. A standard `scrollbar-width` value also makes Chrome drop the
+   `::-webkit-scrollbar` rules, so the opt-out would be fully defeated and the
+   rail would pop in the moment a hover animation nudged the strip 1px wider.
+   Elements that carry `scrollbar-none` are left to that rule; everything else
+   keeps a rail only when it actually overflows. (The wide inventory table and
+   the fleet type-pill strip in admin/vehicles.php both opt out, so those
+   surfaces read as clean grids with no visible rail.) */
+.admin-layout .overflow-x-auto:not(.scrollbar-none) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-line-strong) transparent;
+}
+.admin-layout .overflow-x-auto:not(.scrollbar-none)::-webkit-scrollbar {
+    height: 8px;
+}
+.admin-layout .overflow-x-auto:not(.scrollbar-none)::-webkit-scrollbar-track {
+    background: transparent;
+}
+.admin-layout .overflow-x-auto:not(.scrollbar-none)::-webkit-scrollbar-thumb {
+    background: var(--ui-line-strong);
+    border-radius: 999px;
+}
+.admin-layout .overflow-x-auto:not(.scrollbar-none)::-webkit-scrollbar-thumb:hover {
+    background: var(--ui-purple);
+}
+
+/* Dashboard Live Matrix — first 4 units visible, the rest expand on demand. */
+#timelineRows .timeline-row:nth-child(n+5) {
+    display: none;
+}
+#timelineRows.show-all .timeline-row {
+    display: grid;
+}
+
+/* Status chips read as deliberate semantic elements rather than plain text. */
+[class*="bg-emerald-"],
+[class*="bg-amber-"],
+[class*="bg-error-container"],
+[class*="bg-secondary-fixed"] {
+    background-clip: padding-box;
+}
+
+@media (max-width: 767px) {
+    .admin-layout main {
+        padding-top: 1.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+.back-to-top-btn.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    transition:
+        opacity var(--dur-base) var(--ease-smooth),
+        transform var(--dur-base) var(--ease-spring);
+}
+.back-to-top-btn:hover {
+    transform: translateY(-3px);
+    background: var(--surface-container-low);
+    border-color: var(--ui-line-strong);
+    color: var(--on-surface);
+}
+.back-to-top-btn:active {
+    transform: translateY(0) scale(0.95);
+}
+
+/* ========================================
+   Hero Featured Car — gentle float
+   ======================================== */
+.hero-car-float {
+    animation: hero-car-float 6s ease-in-out infinite;
+    transform: translateZ(0);
+    will-change: transform;
+}
+@keyframes hero-car-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ========================================
+   Admin Dashboard — metric cards
+   (the entrance stagger used to be driven by Motion in
+    assets/js/app-motion.js; the cards are static now, so the hover
+    lift/scale that used to live here is gone too. Hover feedback is
+    the border-color change alone.)
+   ======================================== */
+.metric-stagger > * {
+    transition: border-color var(--dur-base) var(--ease-smooth);
+}
+
+/* ========================================
+   Auth — /auth/login.php, /auth/register.php
+   ========================================
+   Scoped to the auth shell so none of this leaks into the admin or public
+   pages. The two files used to hand-repeat a full pill input and pill
+   submit; these classes replace that repetition and add the states the
+   markup had no way to express: a focus ring driven by :focus-within,
+   an invalid state, and a password-strength meter. */
+.auth-card {
+    position: relative;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+}
+/* The page already paints two blurred orbs. A third, tinted to the
+   primary and offset opposite them, keeps the two themes from looking
+   like the same card with the colours inverted. */
+.auth-orb {
+    position: absolute;
+    pointer-events: none;
+    filter: blur(3rem);
+    border-radius: 9999px;
+    opacity: 0.5;
+    transition: opacity var(--dur-base) var(--ease-smooth);
+}
+.dark .auth-orb { opacity: 0.35; }
+
+.auth-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: var(--primary-fixed);
+    color: var(--primary);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.6;
+}
+
+/* Segmented Sign In / Register switch. The active half is painted by
+   [aria-current], not by a class, so the two pages cannot drift apart
+   and the server-rendered active tab is correct before any JS runs. */
+.auth-tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 9999px;
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+}
+.auth-tabs a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    transition: background-color var(--dur-fast) var(--ease-smooth),
+                color var(--dur-fast) var(--ease-smooth);
+}
+.auth-tabs a:hover { color: var(--primary); }
+.auth-tabs a[aria-current="page"] {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+.auth-tabs a[aria-current="page"]:hover { color: var(--on-primary); }
+
+/* Inputs. The wrapper owns the surface and border; the input inside is
+   transparent and unstyled so the pill is one element, which is why
+   :focus-within (not :focus) drives the ring. */
+.auth-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: 9999px;
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    transition: border-color var(--dur-fast) var(--ease-smooth),
+                background-color var(--dur-fast) var(--ease-smooth);
+}
+/* No focus ring, for pointer or keyboard alike.
+
+   Focus stays indicated, just without a box around the control: the border
+   switches to --primary, the surface lifts to --surface-container-lowest,
+   and the leading icon recolours (below). A border-colour change is a
+   visible change to the control's boundary, which is what WCAG 2.4.7 asks
+   for; 2.4.11 Focus Appearance, which would demand a specific area and
+   contrast ratio for the indicator, is AAA and is not the bar here.
+
+   The glow is gone mainly because it collided with the invalid state -
+   4px of halo in two colours, one of which means "this value is wrong". */
+.auth-field:focus-within {
+    border-color: var(--primary);
+    background: var(--surface-container-lowest);
+}
+.auth-field__icon {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--outline);
+    transition: color var(--dur-fast) var(--ease-smooth);
+}
+.auth-field:focus-within .auth-field__icon { color: var(--primary); }
+.auth-field input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-size: 0.875rem;
+    color: var(--on-surface);
+    /* The Tailwind forms plugin (loaded via the Play CDN) restyles bare
+       input[type=text] selectors, which tie on specificity with this rule,
+       so its own surface, border and radius would leak in and break the
+       single-pill field. Appearance and the reset are set explicitly here
+       rather than left to the winner-by-order. */
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+/* Same reason, and it is !important on purpose: the plugin's focus ring is
+   an important-free declaration too, but its selector may land after this
+   file, and a stray blue halo inside the pill would be the one thing that
+   gives the field away. The focus ring for this control is the wrapper's
+   :focus-within state above. */
+.auth-field input:focus,
+.auth-field input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+}
+.auth-field input::placeholder { color: var(--outline); }
+
+/* Error state carries no ring either, for the same reason: the red border
+   and the red icon are the signal, and a red halo around a field the user
+   is currently typing into overstates the problem. */
+.auth-field--invalid,
+.auth-field--invalid:focus-within {
+    border-color: var(--error);
+}
+.auth-field--invalid .auth-field__icon { color: var(--error); }
+
+.auth-field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--error);
+}
+
+.auth-reveal {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--outline);
+    transition: color var(--dur-fast) var(--ease-smooth);
+}
+.auth-reveal:hover { color: var(--primary); }
+.auth-reveal:focus-visible {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 2px;
+    border-radius: 9999px;
+}
+
+/* Password strength. Four segments, filled by --auth-strength set inline
+   from the scoring script (0-4). Empty segments keep their track colour,
+   so a blank field reads as "not yet scored" rather than "failed". */
+.auth-strength {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.625rem;
+}
+.auth-strength__seg {
+    flex: 1;
+    height: 3px;
+    border-radius: 9999px;
+    background: var(--outline-variant);
+    transition: background-color var(--dur-base) var(--ease-smooth);
+}
+.auth-strength__label {
+    display: block;
+    margin-top: 0.375rem;
+    font-size: 0.6875rem;
+    color: var(--outline);
+    transition: color var(--dur-base) var(--ease-smooth);
+}
+.auth-strength[data-score="1"] .auth-strength__seg:nth-child(-n + 1) { background: var(--error); }
+.auth-strength[data-score="2"] .auth-strength__seg:nth-child(-n + 2) { background: #d97706; }
+.auth-strength[data-score="3"] .auth-strength__seg:nth-child(-n + 3) { background: #0284c7; }
+.auth-strength[data-score="4"] .auth-strength__seg { background: #059669; }
+.auth-strength[data-score="1"] .auth-strength__label { color: var(--error); }
+.auth-strength[data-score="2"] .auth-strength__label { color: #b45309; }
+.auth-strength[data-score="3"] .auth-strength__label { color: #0369a1; }
+.auth-strength[data-score="4"] .auth-strength__label { color: #047857; }
+.dark .auth-strength[data-score="2"] .auth-strength__label { color: #fbbf24; }
+.dark .auth-strength[data-score="3"] .auth-strength__label { color: #7dd3fc; }
+.dark .auth-strength[data-score="4"] .auth-strength__label { color: #6ee7b7; }
+
+.auth-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.9375rem 1.5rem;
+    border-radius: 9999px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-smooth),
+                transform var(--dur-fast) var(--ease-smooth);
+}
+.auth-submit:hover { background: var(--secondary); }
+.auth-submit:active { transform: scale(0.99); }
+/* main.js locks POST forms on submit and sets aria-busy. The label swap
+   is what makes that lock legible; a dimmed button alone looks broken. */
+.auth-submit[aria-busy="true"] { opacity: 0.7; cursor: progress; }
+.auth-submit[aria-busy="true"] .auth-submit__idle { display: none; }
+.auth-submit[aria-busy="true"] .auth-submit__busy { display: inline-flex; }
+.auth-submit__busy { display: none; align-items: center; gap: 0.5rem; }
+
+.auth-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border: 1px solid transparent;
+}
+.auth-alert--error {
+    background: var(--error-container);
+    color: var(--on-error-container);
+}
+.auth-alert--ok {
+    /* Hard-coded emerald classes were unreadable in dark mode: a pale
+       fill with dark text on a dark page. These are the theme's own
+       success tones instead. */
+    background: color-mix(in srgb, #059669 12%, var(--surface-container-lowest));
+    border-color: color-mix(in srgb, #059669 40%, transparent);
+    color: var(--on-surface);
+}
+.dark .auth-alert--ok {
+    background: color-mix(in srgb, #059669 20%, var(--surface-container-lowest));
+    color: #6ee7b7;
+}
+
+/* Reduced motion: the strength meter and alert are state changes, not
+   decoration, so they keep their colour transitions; only the pulsing
+   spinner stops. */
+.auth-spin { animation: auth-spin 0.9s linear infinite; }
+@keyframes auth-spin { to { transform: rotate(360deg); } }
+
+/* ========================================
+   Reduced Motion — Accessible Fallbacks
+   ======================================== */
+/* ========================================
+   RESERVATION — HANDOVER SCHEDULE
+   ========================================
+   Two departure/return cards on customer/reservation.php.
+
+   The native <input type="date"> / <input type="time"> keeps the value and
+   the browser picker, but its own text and indicator are hidden at rest.
+   A formatted label is painted from the server (formatDate/formatTime) and
+   refreshed by reservation.php's script, so an empty date no longer shows
+   the browser's clipped "mm/dd/yyyy" placeholder. On focus the formatted
+   label steps aside and the native field shows its editable segments, so
+   keyboard entry and the required-field validation bubble still work.
+
+   The calendar/clock button is the visible picker affordance. It calls
+   showPicker() where supported and falls back to focusing the field. */
+.handover-card {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+}
+
+.handover-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.625rem;
+}
+
+/* The card itself is the container, so the fields respond to the space
+   they actually have (not the viewport). At 300px two columns fit; below
+   that, stacking is the only way a formatted date can stay readable. */
+@container (min-width: 300px) {
+    .handover-fields {
+        grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    }
+}
+
+.handover-field {
+    min-width: 0;
+}
+
+.handover-field__label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--tertiary);
+}
+
+.handover-control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2.875rem;
+    padding: 0.25rem 0.375rem 0.25rem 0.75rem;
+    border: 1px solid var(--outline-variant);
+    border-radius: 1rem;
+    background: var(--surface-container-lowest);
+    transition: border-color var(--dur-fast) ease,
+                background-color var(--dur-fast) ease;
+}
+
+.handover-control:hover {
+    border-color: var(--ui-line-strong);
+}
+
+/* Focus is the wrapper's border plus the app focus ring. The native input's
+   own outline is suppressed further down so the composite control reads as
+   one field, not a field inside a field. */
+.handover-field:focus-within .handover-control {
+    border-color: var(--ui-purple);
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 0;
+}
+
+.handover-control__display {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 0.75rem;
+    right: 2.75rem;
+    transform: translateY(-50%);
+    overflow: hidden;
+    color: var(--on-surface);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.handover-control__display.is-placeholder {
+    color: var(--tertiary);
+    font-weight: 600;
+}
+
+.handover-field:focus-within .handover-control__display {
+    opacity: 0;
+}
+
+/* Transparent at rest so the formatted label is the only text visible.
+   Focus restores the native segments for editing. The !important border
+   reset is load-bearing: the Tailwind forms plugin loads after this file
+   and would otherwise re-draw its own edge inside the control. */
+.handover-control__input {
+    position: relative;
+    z-index: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    height: 2.375rem !important;
+    margin: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: transparent;
+    font-family: inherit;
+    font-size: 1rem !important;
+    font-weight: 700;
+    line-height: 1.2 !important;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.handover-control__input:focus,
+.handover-control__input:focus-visible,
+.handover-field:focus-within .handover-control__input {
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: var(--on-surface);
+}
+
+.handover-control__input::-webkit-date-and-time-value {
+    text-align: left;
+}
+
+.handover-control__input::-webkit-datetime-edit {
+    padding: 0;
+}
+
+.handover-control__input::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+/* The native icon would sit beside the custom trigger and read as a second,
+   differently styled control. The trigger is the single affordance. */
+.handover-control__input::-webkit-calendar-picker-indicator {
+    display: none;
+    opacity: 0;
+}
+
+.handover-control__trigger {
+    position: relative;
+    z-index: 3;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 0.625rem;
+    background: var(--primary-fixed);
+    color: var(--primary);
+    font-size: 0.9375rem;
+    line-height: 1;
+    transition: background-color var(--dur-fast) ease,
+                color var(--dur-fast) ease,
+                transform var(--dur-fast) var(--ease-spring);
+}
+
+.handover-control__trigger:hover {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+.handover-control__trigger:active {
+    transform: scale(0.94);
+}
+
+/* The whole control already lights up on :focus-within, so a second ring on
+   the button itself would read as two nested focus states. */
+.handover-control__trigger:focus-visible {
+    outline: none;
+}
+
+.handover-note {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    color: var(--tertiary);
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.handover-note .bi {
+    flex-shrink: 0;
+}
+
+.handover-note strong {
+    color: var(--on-surface);
+    font-weight: 700;
+}
+
+/* Forced-colors mode repaints form text with system colours, which would
+   expose the transparent native input under the formatted label. Swap the
+   layers: the native text becomes visible and the decorative label steps
+   out of the way. */
+@media (forced-colors: active) {
+    .handover-control__display {
+        display: none;
+    }
+    .handover-control__input {
+        color: CanvasText !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+    /* These need the same html[data-motion] prefix as the hidden states
+       above: a bare class selector is less specific, so the hidden rule
+       would win and reduced-motion users would get a page that never
+       becomes visible. */
+    html[data-motion] .reveal-on-scroll,
+    html[data-motion] .reveal-scale,
+    html[data-motion] .reveal-left,
+    html[data-motion] .reveal-right,
+    html[data-motion] .hero-entrance,
+    html[data-motion] .hero-entrance-child,
+    html[data-motion] .table-row-enter,
+    html[data-motion] .sidebar-sticky-enter {
+        opacity: 1;
+        transform: none;
+    }
+    body main,
+    body footer { animation: none; opacity: 1; transform: none; }
+    .empty-state-icon { animation: none; }
+    .ambient-orb { display: none; }
+    .avatar-glow::after { display: none; }
+    .status-dot-animated::after { animation: none; }
+    .step-active::after { display: none; }
+    .hero-car-float { animation: none; }
+    .back-to-top-btn { transition: none; }
+    .metric-stagger > * { animation: none; opacity: 1; transform: none; }
+    .navbar-glass { animation: none; opacity: 1; transform: none; }
+    .navbar-glass nav a,
+    .mobile-menu-panel.is-open nav a {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    .navbar-glass::after { display: none; }
+    .mobile-menu-panel { transition: none; opacity: 1; transform: none; }
+    .auth-orb { display: none; }
+    .auth-spin { animation: none; }
+}

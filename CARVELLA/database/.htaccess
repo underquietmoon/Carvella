@@ -1,0 +1,16 @@
+# This directory holds the schema, the seed data and the seeded admin password
+# hash. Nothing in here is meant to be fetched over HTTP.
+#
+# carvella.sql is now the only SQL file in here. Denying the directory covers
+# it, and covers anything added later without this file needing an edit.
+#
+# Apache 2.4
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+# Apache 2.2
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
