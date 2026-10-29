@@ -1,5 +1,5 @@
 <?php
-/* dashboard.php - Carvella Car Rental System */
+/* admin/dashboard.php - Admin dashboard with KPIs and recent activity. */
 
 $pageTitle = 'Admin Dashboard - Carvella';
 $adminLayout = true;
@@ -550,4 +550,6 @@ require_once __DIR__ . '/../includes/header.php';
 })();
 </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/dashboard.php */
+?>

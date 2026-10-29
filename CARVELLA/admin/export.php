@@ -1,5 +1,5 @@
 <?php
-/* export.php - Carvella Car Rental System */
+/* admin/export.php - Admin CSV export endpoint. */
 
 $pageTitle = 'Data Export - Carvella';
 $adminLayout = true;
@@ -316,4 +316,6 @@ require_once __DIR__ . '/../includes/header.php';
   </main>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/export.php */
+?>

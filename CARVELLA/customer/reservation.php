@@ -1,5 +1,5 @@
 <?php
-/* reservation.php - Carvella Car Rental System */
+/* customer/reservation.php - Reservation booking form, validation and POST handler. */
 
 $pageTitle = 'Vehicle Booking - Carvella';
 require_once __DIR__ . '/../config/auth.php';
@@ -1598,4 +1598,6 @@ require_once __DIR__ . '/../includes/navbar.php';
 <?php
 // Wire the shared reservation-page behaviour (return-date floor, submit prompt) — see assets/js/reservation.js.
 $extraScripts = ['reservation.js'];
-require_once __DIR__ . '/../includes/footer.php'; ?>
+require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/reservation.php */
+?>

@@ -1,4 +1,5 @@
 <?php
+/* config/database.php - MySQL connection bootstrap shared by every page. */
 require_once __DIR__ . '/config.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
@@ -47,3 +48,5 @@ if (preg_match('/^[+-]\d{2}:\d{2}$/', $phpTimezoneOffset)) {
         error_log('Carvella time zone sync failed: ' . $conn->error);
     }
 }
+
+/* End of config/database.php */

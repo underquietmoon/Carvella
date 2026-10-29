@@ -1,5 +1,5 @@
 <?php
-/* availability.php - Carvella Car Rental System */
+/* admin/availability.php - Admin rental tracker and fleet availability view. */
 
 $pageTitle = 'Rental Tracker & Availability - Carvella';
 $adminLayout = true;
@@ -563,4 +563,6 @@ require_once __DIR__ . '/../includes/header.php';
   </main>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/availability.php */
+?>

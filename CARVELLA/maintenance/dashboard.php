@@ -1,5 +1,5 @@
 <?php
-/* maintenance/dashboard.php - Carvella Car Rental System */
+/* maintenance/dashboard.php - Maintenance staff dashboard. */
 $pageTitle = 'Maintenance Dashboard - Carvella';
 require_once __DIR__ . '/../config/auth.php';
 requireMaintenance();
@@ -406,3 +406,4 @@ require_once __DIR__ . '/../includes/navbar.php';
 </main>
 <script src="<?= BASE_URL ?>/assets/js/main.js?v=20261012a"></script>
 <script type="module" src="<?= BASE_URL ?>/assets/js/app-motion.js?v=20261013g"></script>
+<?php /* End of maintenance/dashboard.php */ ?>

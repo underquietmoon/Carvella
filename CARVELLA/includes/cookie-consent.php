@@ -1,4 +1,5 @@
 <?php
+/* includes/cookie-consent.php - Cookie consent banner partial. */
 // Cookie consent banner — shown only until the visitor makes a choice.
 // Choice is persisted in localStorage under the key 'carvella_cookie_consent'.
 ?>
@@ -237,3 +238,4 @@
         }
     }
 </style>
+<?php /* End of includes/cookie-consent.php */ ?>

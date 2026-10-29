@@ -1,4 +1,5 @@
 <?php
+/* config/auth.php - Session bootstrap plus login, role, CSRF and flash helpers. */
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
@@ -256,3 +257,5 @@ if (isMaintenance() && !empty($_SERVER['PHP_SELF'])) {
         }
     }
 }
+
+/* End of config/auth.php */

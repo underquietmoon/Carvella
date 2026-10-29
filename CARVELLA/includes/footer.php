@@ -1,4 +1,5 @@
 <?php
+/* includes/footer.php - Shared site footer partial. */
 $isAdminFooter = !empty($adminLayout);
 ?>
 <?php if (!$isAdminFooter): ?>
@@ -223,3 +224,4 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php endif; ?>
 </body>
 </html>
+<?php /* End of includes/footer.php */ ?>

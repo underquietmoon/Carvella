@@ -1,5 +1,5 @@
 <?php
-/* admin-login.php - Carvella Car Rental System */
+/* auth/admin-login.php - Admin login form and authentication handler. */
 $pageTitle = 'Admin Login | CARVELLA Fleet Console';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -108,4 +108,6 @@ document.querySelectorAll('button[aria-label="Show password"]').forEach(function
     });
 });
 </script>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of auth/admin-login.php */
+?>

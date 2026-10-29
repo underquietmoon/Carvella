@@ -1,5 +1,5 @@
 <?php
-/* register.php - Carvella Car Rental System */
+/* auth/register.php - Customer registration form and handler. */
 $pageTitle = 'Create Account | CARVELLA Dagupan Hub';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -440,4 +440,6 @@ document.querySelectorAll('#address').forEach(function (input) {
     update();
 })();
 </script>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of auth/register.php */
+?>

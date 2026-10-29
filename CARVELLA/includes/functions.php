@@ -1,4 +1,5 @@
 <?php
+/* includes/functions.php - Shared helper functions for formatting, queries and auth. */
 /* Include-once sentinel - never guard on own functions: PHP binds them at compile time, so the guard is always true. */
 if (defined('CARVELLA_FUNCTIONS_LOADED')) {
     return;
@@ -841,3 +842,5 @@ function carvella_export_xlsx(string $filename, array $headers, array $rows): vo
     unlink($tmp);
     exit();
 }
+
+/* End of includes/functions.php */

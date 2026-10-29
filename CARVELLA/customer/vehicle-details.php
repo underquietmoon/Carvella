@@ -1,5 +1,5 @@
 <?php
-/* vehicle-details.php - Carvella Car Rental System */
+/* customer/vehicle-details.php - Vehicle detail page with booking action. */
 $pageTitle = 'Vehicle Details - Carvella';
 require_once __DIR__ . '/../config/auth.php';
 
@@ -342,4 +342,6 @@ require_once __DIR__ . '/../includes/navbar.php';
     </div>
 </main>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/vehicle-details.php */
+?>

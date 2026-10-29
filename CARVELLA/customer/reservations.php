@@ -1,5 +1,5 @@
 <?php
-/* reservations.php - Carvella Car Rental System */
+/* customer/reservations.php - Customer reservation list. */
 $pageTitle = 'My Reservations - Carvella';
 require_once __DIR__ . '/../config/auth.php';
 requireLogin();
@@ -258,4 +258,6 @@ require_once __DIR__ . '/../includes/navbar.php';
    the real request from ever firing. The delegated submit guard in
    assets/js/main.js owns the confirmation and the double-submit lock. */
 ?>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/reservations.php */
+?>

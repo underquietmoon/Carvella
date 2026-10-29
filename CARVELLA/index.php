@@ -1,5 +1,5 @@
 <?php
-/* index.php - Carvella Car Rental System */
+/* index.php - Public landing page with fleet showcase and booking calls to action. */
 $pageTitle = 'CARVELLA — Vehicle Reservation Systems';
 require_once __DIR__ . '/includes/header.php';
 
@@ -614,4 +614,6 @@ window.updatePriceSlider = function(input){
 </script>
 
 <?php require_once __DIR__ . '/includes/cookie-consent.php'; ?>
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; 
+/* End of index.php */
+?>

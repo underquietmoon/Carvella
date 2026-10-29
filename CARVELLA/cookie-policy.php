@@ -1,4 +1,5 @@
 <?php
+/* cookie-policy.php - Cookie policy page listing cookies used and visitor choices. */
 $pageTitle = 'Cookie Policy | CARVELLA';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/navbar.php';
@@ -190,4 +191,6 @@ $effective = 'September 16, 2026';
 
 </main>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; 
+/* End of cookie-policy.php */
+?>

@@ -1,4 +1,5 @@
 <?php
+/* includes/password-reset.php - Password reset token and email helpers. */
 /*
  * Include-once sentinel. See the note in includes/rental-service.php: a
  * function_exists() guard on this file's own functions is always true on a
@@ -392,3 +393,5 @@ function passwordResetBuildEmail($user, $token) {
 
     return ['subject' => $subject, 'html' => $html, 'text' => $text];
 }
+
+/* End of includes/password-reset.php */

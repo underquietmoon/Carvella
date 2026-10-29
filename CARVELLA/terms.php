@@ -1,4 +1,5 @@
 <?php
+/* terms.php - Terms and conditions page for rentals and site use. */
 $pageTitle = 'Terms & Conditions | CARVELLA';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/navbar.php';
@@ -169,4 +170,6 @@ $updated = 'September 7, 2026';
 
 </main>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; 
+/* End of terms.php */
+?>

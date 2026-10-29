@@ -1,5 +1,5 @@
 <?php
-/* login.php - Carvella Car Rental System */
+/* auth/login.php - Customer login form and authentication handler. */
 $pageTitle = 'Member Login | CARVELLA Dagupan Hub';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -193,4 +193,6 @@ document.querySelectorAll('[data-reveal-for]').forEach(function (btn) {
     });
 })();
 </script>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of auth/login.php */
+?>

@@ -1,4 +1,5 @@
 <?php
+/* includes/export.php - CSV export helper functions. */
 /**
  * Carvella CSV export helpers.
  *
@@ -650,3 +651,5 @@ if (!function_exists('csv_clean')) {
         return $key . '_' . date('Y-m-d') . '.csv';
     }
 }
+
+/* End of includes/export.php */

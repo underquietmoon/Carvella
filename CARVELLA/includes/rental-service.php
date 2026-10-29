@@ -1,4 +1,5 @@
 <?php
+/* includes/rental-service.php - Rental and reservation service functions. */
 /* Include-once sentinel: PHP binds top-level functions at compile time, so only a constant can guard this file. */
 if (defined('CARVELLA_RENTAL_SERVICE_LOADED')) {
     return;
@@ -1498,3 +1499,5 @@ function rentalTransactionSummary($conn, $fromDate = null, $toDate = null) {
 
     return $summary;
 }
+
+/* End of includes/rental-service.php */

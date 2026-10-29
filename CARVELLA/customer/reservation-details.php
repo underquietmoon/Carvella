@@ -1,5 +1,5 @@
 <?php
-/* reservation-details.php - Carvella Car Rental System */
+/* customer/reservation-details.php - Single reservation detail view. */
 $pageTitle = 'Reservation Details - Carvella';
 require_once __DIR__ . '/../config/auth.php';
 requireLogin();
@@ -307,4 +307,6 @@ if ($status === 'completed' || $status === 'available') {
    and the owner-scoped, pending-only handler; assets/js/main.js supplies
    the confirmation and the double-submit lock. */
 ?>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/reservation-details.php */
+?>

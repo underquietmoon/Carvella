@@ -1,5 +1,5 @@
 <?php
-/* profile.php - Carvella Car Rental System */
+/* customer/profile.php - Customer profile view and update form. */
 
 $pageTitle = 'My Profile - Carvella';
 require_once __DIR__ . '/../config/auth.php';
@@ -335,4 +335,6 @@ require_once __DIR__ . '/../includes/navbar.php';
 
 </main>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/profile.php */
+?>

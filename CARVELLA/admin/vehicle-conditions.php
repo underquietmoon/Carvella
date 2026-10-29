@@ -1,5 +1,5 @@
 <?php
-/* vehicle-conditions.php - Carvella Car Rental System */
+/* admin/vehicle-conditions.php - Admin vehicle condition reports. */
 
 $pageTitle = 'Vehicle Conditions - Carvella';
 $adminLayout = true;
@@ -377,4 +377,6 @@ require_once __DIR__ . '/../includes/header.php';
   </main>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/vehicle-conditions.php */
+?>

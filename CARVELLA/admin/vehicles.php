@@ -1,5 +1,5 @@
 <?php
-/* vehicles.php - Carvella Car Rental System */
+/* admin/vehicles.php - Admin fleet create, edit and delete screens. */
 
 $pageTitle = 'Vehicle Matrix - Carvella';
 $adminLayout = true;
@@ -1181,4 +1181,6 @@ function closeVehicleDrawer() {
 }
 </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/vehicles.php */
+?>

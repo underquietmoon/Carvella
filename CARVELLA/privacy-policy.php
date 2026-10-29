@@ -1,4 +1,5 @@
 <?php
+/* privacy-policy.php - Privacy policy page describing data collection and handling. */
 $pageTitle = 'Privacy Policy | CARVELLA';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/navbar.php';
@@ -146,4 +147,6 @@ $updated = 'September 7, 2026';
 
 </main>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; 
+/* End of privacy-policy.php */
+?>

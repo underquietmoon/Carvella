@@ -1,4 +1,5 @@
 <?php
+/* config/config.php - Environment configuration constants and defaults. */
 /** Configuration: every setting reads getenv() first and falls back to the XAMPP default. */
 
 /* Time zone: "today" means Philippine time; php.ini's Europe/Berlin default ran the app 6 hours behind. */
@@ -197,3 +198,5 @@ function appSanitizeHost($host) {
     }
     return null;
 }
+
+/* End of config/config.php */

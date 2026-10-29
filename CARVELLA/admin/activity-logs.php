@@ -1,5 +1,5 @@
 <?php
-/* activity-logs.php - Carvella Car Rental System */
+/* admin/activity-logs.php - Admin audit trail of system activity. */
 $pageTitle = 'Activity Logs &amp; Audit Trail - Carvella';
 $adminLayout = true;
 require_once __DIR__ . '/../config/auth.php';
@@ -159,4 +159,6 @@ require_once __DIR__ . '/../includes/header.php';
   </main>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/activity-logs.php */
+?>

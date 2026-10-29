@@ -1,5 +1,5 @@
 <?php
-/* maintenance.php - Carvella Car Rental System (view-only maintenance records) */
+/* admin/maintenance.php - Admin view-only maintenance records. */
 $pageTitle = 'Maintenance Records - Carvella';
 $adminLayout = true;
 require_once __DIR__ . '/../config/auth.php';
@@ -168,4 +168,6 @@ require_once __DIR__ . '/../includes/header.php';
     </div>
   </main>
 </div>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/maintenance.php */
+?>

@@ -1,5 +1,5 @@
 <?php
-/* availability.php - Carvella Car Rental System */
+/* api/vehicles/availability.php - JSON endpoint returning vehicle availability for a date range. */
 require_once __DIR__ . '/../../config/auth.php';
 // The conflict payload carries other customers' booking references and exact
 // date windows, so it is scoped to signed-in users.
@@ -56,3 +56,5 @@ jsonResponse([
     'redacted' => $redacted,
     'conflicts' => $conflicts,
 ]);
+
+/* End of api/vehicles/availability.php */

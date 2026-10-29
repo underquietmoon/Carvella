@@ -1,5 +1,5 @@
 <?php
-/* logout.php - Carvella Car Rental System */
+/* auth/logout.php - Session logout and redirect. */
 require_once __DIR__ . '/../config/auth.php';
 
 // Logging out must be a POST: a GET is linkable, so an <img> tag elsewhere forces a sign-out.
@@ -23,3 +23,5 @@ destroySession();
 
 header("Location: " . BASE_URL . "/index.php");
 exit();
+
+/* End of auth/logout.php */

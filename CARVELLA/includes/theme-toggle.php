@@ -1,4 +1,5 @@
 <?php
+/* includes/theme-toggle.php - Dark/light theme toggle widget. */
 /**
  * Theme toggle.
  *
@@ -118,4 +119,6 @@ $themeToggleVariant = 'switch';
     </span>
     <?php endif; ?>
 </button>
-<?php endif; ?>
+<?php endif; 
+/* End of includes/theme-toggle.php */
+?>

@@ -1,4 +1,5 @@
 <?php
+/* includes/header.php - Shared document head and opening layout partial. */
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/functions.php';
 
@@ -506,4 +507,4 @@ if ($notifResult) {
     updateBadge();
 })();
 </script>
-
+<?php /* End of includes/header.php */ ?>

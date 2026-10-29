@@ -1,4 +1,5 @@
 <?php
+/* includes/admin-sidebar.php - Admin sidebar navigation partial. */
 $currentFile = basename($_SERVER['PHP_SELF']);
 $adminLinks = [
     'dashboard.php' => ['label' => 'Dashboard', 'icon' => 'grid'],
@@ -108,3 +109,4 @@ $adminLinks = [
     if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
 })();
 </script>
+<?php /* End of includes/admin-sidebar.php */ ?>

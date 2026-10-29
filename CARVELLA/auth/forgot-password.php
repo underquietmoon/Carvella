@@ -1,5 +1,5 @@
 <?php
-/* forgot-password.php - Carvella Car Rental System */
+/* auth/forgot-password.php - Password reset request form and handler. */
 $pageTitle = 'Reset Password | CARVELLA Dagupan Hub';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -394,4 +394,6 @@ document.querySelectorAll('[data-reveal-for]').forEach(function (btn) {
     guard('reset-password-form', ['password', 'confirm_password']);
 })();
 </script>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of auth/forgot-password.php */
+?>

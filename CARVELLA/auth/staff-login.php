@@ -1,5 +1,5 @@
 <?php
-/* maintenance-login.php - Carvella Car Rental System */
+/* auth/staff-login.php - Maintenance login page served from the /staff/ role URL. */
 $pageTitle = 'Maintenance Login | CARVELLA Fleet Console';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
@@ -80,4 +80,6 @@ Enter Maintenance Console
 <p class="text-center text-body-md font-body-md text-on-surface-variant mt-4 mb-0">Not maintenance staff? <a href="<?= BASE_URL ?>/auth/login.php" class="text-primary font-bold hover:underline">Client login here</a></p>
 </div>
 </main>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of auth/staff-login.php */
+?>

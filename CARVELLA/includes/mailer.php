@@ -1,4 +1,5 @@
 <?php
+/* includes/mailer.php - PHPMailer wrapper and mail helpers. */
 /*
  * Include-once sentinel. See the note in includes/rental-service.php: a
  * function_exists() guard on this file's own functions is always true on a
@@ -367,3 +368,5 @@ function sendMailMessage($to, $subject, $html, $text = null, array $headers = []
     }
     return ['success' => true, 'error' => ''];
 }
+
+/* End of includes/mailer.php */

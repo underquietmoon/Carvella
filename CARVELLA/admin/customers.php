@@ -1,5 +1,5 @@
 <?php
-/* customers.php - Carvella Car Rental System */
+/* admin/customers.php - Admin customer accounts list and management. */
 
 $pageTitle = 'Customers & Verification Bureau - Carvella';
 $adminLayout = true;
@@ -775,4 +775,6 @@ if (wAddress) {
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/customers.php */
+?>

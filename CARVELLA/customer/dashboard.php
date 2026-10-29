@@ -1,5 +1,5 @@
 <?php
-/* dashboard.php - Carvella Car Rental System */
+/* customer/dashboard.php - Customer dashboard with active bookings and rental history. */
 $pageTitle = 'Customer Dashboard - Carvella';
 require_once __DIR__ . '/../config/auth.php';
 requireLogin();
@@ -450,4 +450,6 @@ require_once __DIR__ . '/../includes/navbar.php';
 
 </main>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/dashboard.php */
+?>

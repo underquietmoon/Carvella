@@ -1,5 +1,5 @@
 <?php
-/* reservations.php - Carvella Car Rental System */
+/* admin/reservations.php - Admin reservations and rental management. */
 
 $pageTitle = 'Manage Rentals - Carvella';
 $adminLayout = true;
@@ -1569,4 +1569,6 @@ document.addEventListener('keydown', function (e) {
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of admin/reservations.php */
+?>

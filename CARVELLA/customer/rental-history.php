@@ -1,5 +1,5 @@
 <?php
-/* rental-history.php - Carvella Car Rental System */
+/* customer/rental-history.php - Customer rental history with search and status filters. */
 $pageTitle = 'Rental History - Carvella';
 require_once __DIR__ . '/../config/auth.php';
 requireLogin();
@@ -262,4 +262,6 @@ require_once __DIR__ . '/../includes/navbar.php';
 
 </main>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/rental-history.php */
+?>

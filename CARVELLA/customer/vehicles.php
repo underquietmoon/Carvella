@@ -1,5 +1,5 @@
 <?php
-/* vehicles.php - Carvella Car Rental System */
+/* customer/vehicles.php - Customer fleet listing with filters. */
 $pageTitle = 'Vehicles | CARVELLA Luxury Fleet Dagupan';
 require_once __DIR__ . '/../config/auth.php';
 
@@ -594,4 +594,6 @@ $sizes = '(min-width: 1280px) 430px, (min-width: 1024px) 31vw, (min-width: 768px
 })();
 </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; 
+/* End of customer/vehicles.php */
+?>

@@ -1,4 +1,5 @@
 <?php
+/* includes/navbar.php - Shared top navigation bar partial. */
 $currentFile = basename($_SERVER['PHP_SELF']);
 $isAdminArea = strpos($_SERVER['PHP_SELF'], '/admin/') !== false;
 $fullName = $currentUser['first_name'] ?? ($_SESSION['name'] ?? 'Guest');
@@ -181,3 +182,4 @@ $navActiveMobile = function ($file) use ($currentFile) {
     }
 })();
 </script>
+<?php /* End of includes/navbar.php */ ?>
